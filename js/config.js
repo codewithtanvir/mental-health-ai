@@ -41,7 +41,20 @@ class ConfigManager {
      */
     async loadFromConfigFile() {
         try {
-            // Try to load from env.json first (served by development server)
+            // First try to load from Vercel API endpoint
+            let response = await fetch('/api/env');
+            if (response.ok) {
+                const envData = await response.json();
+                this.config = { ...this.config, ...envData };
+                console.log('✅ Loaded configuration from Vercel API');
+                return;
+            }
+        } catch (error) {
+            console.log('Vercel API not available, trying local sources...');
+        }
+
+        try {
+            // Try to load from env.json (served by development server)
             let response = await fetch('./env.json');
             if (response.ok) {
                 const envData = await response.json();

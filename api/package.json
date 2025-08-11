@@ -1,0 +1,13 @@
+{
+  "name": "mental-health-ai-api",
+  "version": "1.0.0",
+  "description": "API endpoints for Mental Health AI",
+  "main": "env.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
