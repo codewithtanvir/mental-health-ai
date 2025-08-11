@@ -406,18 +406,28 @@ class AuthManager {
 
     // Check if user has admin role
     async checkAdminRole(userId) {
-        if (!this.supabase) return false;
+        if (!this.supabase) {
+            console.log('❌ Supabase not initialized');
+            return false;
+        }
         
         try {
+            console.log('🔍 Checking admin role for user:', userId);
+            
             const { data, error } = await this.supabase
                 .from('user_profiles')
                 .select('role')
                 .eq('id', userId)
                 .single();
             
-            return !error && data?.role === 'admin';
+            console.log('📊 Database query result:', { data, error });
+            
+            const isAdmin = !error && data?.role === 'admin';
+            console.log('👤 User is admin:', isAdmin, '| Role:', data?.role);
+            
+            return isAdmin;
         } catch (error) {
-            console.error('Error checking admin role:', error);
+            console.error('❌ Error checking admin role:', error);
             return false;
         }
     }

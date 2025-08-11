@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন সেটআপ - মানসিক স্বাস্থ্য এআই</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/config.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">অ্যাডমিন সেটআপ</h1>
+            
+            <div id="status" class="mb-4 p-3 rounded hidden"></div>
+            
+            <div class="space-y-4">
+                <button id="check-user" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                    বর্তমান ব্যবহারকারী পরীক্ষা করুন
+                </button>
+                
+                <button id="promote-admin" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                    অ্যাডমিন হিসেবে প্রমোট করুন
+                </button>
+                
+                <button id="check-profile" class="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600">
+                    প্রোফাইল ডেটা পরীক্ষা করুন
+                </button>
+            </div>
+
+            <div id="result" class="mt-6 p-4 bg-gray-100 rounded text-sm hidden">
+                <h3 class="font-bold mb-2">ফলাফল:</h3>
+                <pre id="result-content" class="whitespace-pre-wrap"></pre>
+            </div>
+
+            <div class="mt-6 text-center">
+                <a href="../auth/login.html" class="text-blue-500 hover:underline">লগইন পেজে ফিরে যান</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+
+        class AdminSetup {
+            constructor() {
+                this.supabase = null;
+                this.currentUser = null;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    // Load configuration
+                    const config = await window.loadSupabaseConfig();
+                    
+                    // Initialize Supabase
+                    this.supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+                    
+                    // Get current user
+                    const { data: { user } } = await this.supabase.auth.getUser();
+                    this.currentUser = user;
+
+                    this.setupEventListeners();
+                    
+                    if (!user) {
+                        this.showStatus('error', 'আপনি লগইন করেননি। প্রথমে লগইন করুন।');
+                    } else {
+                        this.showStatus('success', `লগইন করা আছে: ${user.email}`);
+                    }
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    this.showStatus('error', 'ইনিশিয়ালাইজেশন এরর: ' + error.message);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('check-user').addEventListener('click', () => this.checkCurrentUser());
+                document.getElementById('promote-admin').addEventListener('click', () => this.promoteToAdmin());
+                document.getElementById('check-profile').addEventListener('click', () => this.checkProfile());
+            }
+
+            showStatus(type, message) {
+                const statusEl = document.getElementById('status');
+                statusEl.className = `mb-4 p-3 rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+                statusEl.textContent = message;
+                statusEl.classList.remove('hidden');
+            }
+
+            showResult(data) {
+                const resultEl = document.getElementById('result');
+                const contentEl = document.getElementById('result-content');
+                contentEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.classList.remove('hidden');
+            }
+
+            async checkCurrentUser() {
+                if (!this.currentUser) {
+                    this.showStatus('error', 'কোন ব্যবহারকারী লগইন করেননি।');
+                    return;
+                }
+
+                const userData = {
+                    id: this.currentUser.id,
+                    email: this.currentUser.email,
+                    created_at: this.currentUser.created_at,
+                    email_confirmed_at: this.currentUser.email_confirmed_at
+                };
+
+                this.showResult(userData);
+                this.showStatus('success', 'ব্যবহারকারীর তথ্য লোড হয়েছে।');
+            }
+
+            async checkProfile() {
+                if (!this.currentUser) {
+                    this.showStatus('error', 'কোন ব্যবহারকারী লগইন করেননি।');
+                    return;
+                }
+
+                try {
+                    const { data, error } = await this.supabase
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', this.currentUser.id)
+                        .single();
+
+                    this.showResult({ data, error });
+                    
+                    if (error) {
+                        this.showStatus('error', 'প্রোফাইল পাওয়া যায়নি: ' + error.message);
+                    } else {
+                        this.showStatus('success', `প্রোফাইল পাওয়া গেছে। রোল: ${data.role || 'নির্ধারিত নয়'}`);
+                    }
+                } catch (error) {
+                    this.showStatus('error', 'এরর: ' + error.message);
+                }
+            }
+
+            async promoteToAdmin() {
+                if (!this.currentUser) {
+                    this.showStatus('error', 'কোন ব্যবহারকারী লগইন করেননি।');
+                    return;
+                }
+
+                try {
+                    // First check if profile exists
+                    const { data: existingProfile } = await this.supabase
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', this.currentUser.id)
+                        .single();
+
+                    let result;
+                    if (existingProfile) {
+                        // Update existing profile
+                        result = await this.supabase
+                            .from('user_profiles')
+                            .update({ role: 'admin' })
+                            .eq('id', this.currentUser.id);
+                    } else {
+                        // Create new profile
+                        result = await this.supabase
+                            .from('user_profiles')
+                            .insert({
+                                id: this.currentUser.id,
+                                email: this.currentUser.email,
+                                full_name: this.currentUser.user_metadata?.full_name || this.currentUser.email.split('@')[0],
+                                role: 'admin'
+                            });
+                    }
+
+                    this.showResult(result);
+                    
+                    if (result.error) {
+                        this.showStatus('error', 'অ্যাডমিন প্রমোশন ব্যর্থ: ' + result.error.message);
+                    } else {
+                        this.showStatus('success', 'সফলভাবে অ্যাডমিন হিসেবে প্রমোট হয়েছেন! এখন লগআউট করে পুনরায় লগইন করুন।');
+                    }
+                } catch (error) {
+                    this.showStatus('error', 'এরর: ' + error.message);
+                }
+            }
+        }
+
+        new AdminSetup();
+    </script>
+</body>
+</html>
