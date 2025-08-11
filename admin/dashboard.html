@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন ড্যাশবোর্ড - মানসিক স্বাস্থ্য এআই</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="মানসিক স্বাস্থ্য এআই অ্যাডমিন প্যানেল">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Loading Screen -->
+    <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">অ্যাডমিন ড্যাশবোর্ড</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold" id="adminInitials">AD</span>
+                        </div>
+                        <span class="text-gray-700" id="adminName">অ্যাডমিন</span>
+                    </div>
+                    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200">
+                        লগআউট
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-white shadow-sm border-r border-gray-200">
+            <div class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#dashboard" onclick="showSection('dashboard')" class="nav-item active flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            ড্যাশবোর্ড
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#users" onclick="showSection('users')" class="nav-item flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                            </svg>
+                            ব্যবহারকারী
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#blogs" onclick="showSection('blogs')" class="nav-item flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                            </svg>
+                            ব্লগ ম্যানেজমেন্ট
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#chats" onclick="showSection('chats')" class="nav-item flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                            </svg>
+                            চ্যাট লগ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#analytics" onclick="showSection('analytics')" class="nav-item flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                            অ্যানালিটিক্স
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings" onclick="showSection('settings')" class="nav-item flex items-center p-3 rounded-lg">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                            </svg>
+                            সেটিংস
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section active">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">ওভারভিউ</h2>
+                    <p class="text-gray-600">সিস্টেমের সামগ্রিক অবস্থা এবং গুরুত্বপূর্ণ পরিসংখ্যান</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-500 rounded-md">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">মোট ব্যবহারকারী</p>
+                                <p class="text-2xl font-bold text-gray-900" id="totalUsers">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-500 rounded-md">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">মোট চ্যাট</p>
+                                <p class="text-2xl font-bold text-gray-900" id="totalChats">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-500 rounded-md">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">মোট ব্লগ পোস্ট</p>
+                                <p class="text-2xl font-bold text-gray-900" id="totalBlogs">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-500 rounded-md">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">আজকের ভিজিট</p>
+                                <p class="text-2xl font-bold text-gray-900" id="todayVisits">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">ব্যবহারকারী বৃদ্ধির ট্রেন্ড</h3>
+                        <canvas id="userGrowthChart" height="300"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">দৈনিক চ্যাট অ্যাক্টিভিটি</h3>
+                        <canvas id="chatActivityChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">সাম্প্রতিক কার্যকলাপ</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4" id="recentActivity">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                <p class="text-sm text-gray-600">নতুন ব্যবহারকারী নিবন্ধিত হয়েছেন</p>
+                                <span class="ml-auto text-xs text-gray-400">২ মিনিট আগে</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">ব্যবহারকারী ম্যানেজমেন্ট</h2>
+                    <p class="text-gray-600">সমস্ত নিবন্ধিত ব্যবহারকারীদের তালিকা এবং ব্যবস্থাপনা</p>
+                </div>
+
+                <!-- Users Table -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">ব্যবহারকারী তালিকা</h3>
+                            <div class="flex space-x-3">
+                                <input type="text" id="userSearch" placeholder="অনুসন্ধান..." class="border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                                <button onclick="refreshUsers()" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">রিফ্রেশ</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ব্যবহারকারী</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ইমেইল</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">নিবন্ধনের তারিখ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Users will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blogs Section -->
+            <div id="blogs-section" class="section">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">ব্লগ ম্যানেজমেন্ট</h2>
+                            <p class="text-gray-600">ব্লগ পোস্ট তৈরি, সম্পাদনা এবং ব্যবস্থাপনা</p>
+                        </div>
+                        <button onclick="showCreateBlog()" class="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            নতুন পোস্ট
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Blog Posts Table -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">ব্লগ পোস্ট তালিকা</h3>
+                            <div class="flex space-x-3">
+                                <select id="blogStatusFilter" class="border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                                    <option value="">সব স্ট্যাটাস</option>
+                                    <option value="published">প্রকাশিত</option>
+                                    <option value="draft">খসড়া</option>
+                                </select>
+                                <button onclick="refreshBlogs()" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">রিফ্রেশ</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">শিরোনাম</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">লেখক</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">তারিখ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blogsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Blog posts will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chats Section -->
+            <div id="chats-section" class="section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">চ্যাট লগ</h2>
+                    <p class="text-gray-600">ব্যবহারকারীদের চ্যাট ইতিহাস এবং অ্যানালিটিক্স</p>
+                </div>
+
+                <!-- Chat Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">আজকের চ্যাট</h3>
+                        <p class="text-3xl font-bold text-blue-600" id="todayChats">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">গড় রেসপন্স টাইম</h3>
+                        <p class="text-3xl font-bold text-green-600" id="avgResponseTime">0ms</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">সন্তুষ্টির হার</h3>
+                        <p class="text-3xl font-bold text-purple-600" id="satisfactionRate">0%</p>
+                    </div>
+                </div>
+
+                <!-- Chat History Table -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">সাম্প্রতিক চ্যাট</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ব্যবহারকারী</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">বার্তা</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">সময়</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">স্ট্যাটাস</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chatsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Chat logs will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics-section" class="section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">অ্যানালিটিক্স</h2>
+                    <p class="text-gray-600">বিস্তারিত পরিসংখ্যান এবং রিপোর্ট</p>
+                </div>
+
+                <!-- Analytics Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">মাসিক ব্যবহারকারী পরিসংখ্যান</h3>
+                        <canvas id="monthlyUsersChart" height="300"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">জনপ্রিয় ব্লগ পোস্ট</h3>
+                        <canvas id="popularBlogsChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">সেটিংস</h2>
+                    <p class="text-gray-600">সিস্টেম কনফিগারেশন এবং পছন্দসমূহ</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- General Settings -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">সাধারণ সেটিংস</h3>
+                        <form id="generalSettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">সাইট নাম</label>
+                                <input type="text" id="siteName" value="মানসিক স্বাস্থ্য এআই" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">যোগাযোগ ইমেইল</label>
+                                <input type="email" id="contactEmail" value="info@mentalhealth-ai.bd" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">দৈনিক চ্যাট সীমা</label>
+                                <input type="number" id="dailyChatLimit" value="50" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">সেভ করুন</button>
+                        </form>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">নিরাপত্তা সেটিংস</h3>
+                        <form id="securitySettingsForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">পাসওয়ার্ড পরিবর্তন</label>
+                                <input type="password" id="newPassword" placeholder="নতুন পাসওয়ার্ড" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">পাসওয়ার্ড নিশ্চিত করুন</label>
+                                <input type="password" id="confirmPassword" placeholder="পাসওয়ার্ড নিশ্চিত করুন" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="twoFactorAuth" class="rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                                <label for="twoFactorAuth" class="ml-2 text-sm text-gray-700">টু-ফ্যাক্টর অথেন্টিকেশন সক্ষম করুন</label>
+                            </div>
+                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">পাসওয়ার্ড আপডেট</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Blog Create/Edit Modal -->
+    <div id="blogModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900" id="blogModalTitle">নতুন ব্লগ পোস্ট</h3>
+                        <button onclick="closeBlogModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <form id="blogForm" class="p-6 space-y-6">
+                    <input type="hidden" id="blogId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">শিরোনাম</label>
+                            <input type="text" id="blogTitle" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">স্লাগ</label>
+                            <input type="text" id="blogSlug" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ক্যাটেগরি</label>
+                            <select id="blogCategory" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                                <option value="">ক্যাটেগরি নির্বাচন করুন</option>
+                                <option value="মানসিক স্বাস্থ্য">মানসিক স্বাস্থ্য</option>
+                                <option value="স্ট্রেস ম্যানেজমেন্ট">স্ট্রেস ম্যানেজমেন্ট</option>
+                                <option value="মেডিটেশন">মেডিটেশন</option>
+                                <option value="ঘুম ও স্বাস্থ্য">ঘুম ও স্বাস্থ্য</option>
+                                <option value="উদ্বেগ নিয়ন্ত্রণ">উদ্বেগ নিয়ন্ত্রণ</option>
+                                <option value="ডিজিটাল সুস্থতা">ডিজিটাল সুস্থতা</option>
+                                <option value="সামাজিক সচেতনতা">সামাজিক সচেতনতা</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">স্ট্যাটাস</label>
+                            <select id="blogStatus" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                                <option value="draft">খসড়া</option>
+                                <option value="published">প্রকাশিত</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">পড়ার সময় (মিনিট)</label>
+                            <input type="number" id="blogReadTime" value="5" min="1" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">সংক্ষিপ্ত বিবরণ</label>
+                        <textarea id="blogExcerpt" rows="3" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ফিচার্ড ইমেজ URL</label>
+                        <input type="url" id="blogImage" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">কন্টেন্ট</label>
+                        <textarea id="blogContent" rows="15" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-teal-500 focus:border-teal-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeBlogModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400">বাতিল</button>
+                        <button type="submit" class="bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700">সেভ করুন</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+            <p id="notificationMessage"></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/supabase-config.js"></script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

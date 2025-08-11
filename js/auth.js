@@ -46,7 +46,7 @@ class AuthManager {
     }
 
     // Handle successful authentication
-    handleAuthSuccess(user) {
+    async handleAuthSuccess(user) {
         // Store user info in localStorage
         localStorage.setItem('mental_health_user', JSON.stringify({
             id: user.id,
@@ -56,8 +56,19 @@ class AuthManager {
             loginTime: new Date().toISOString()
         }));
 
-        // Redirect to dashboard or return to previous page
-        const returnUrl = new URLSearchParams(window.location.search).get('returnUrl') || '../dashboard.html';
+        // Check if user is admin and redirect accordingly
+        const isAdmin = await this.checkAdminRole(user.id);
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        
+        let returnUrl;
+        if (redirect === 'admin' && isAdmin) {
+            returnUrl = '../admin/dashboard.html';
+        } else if (isAdmin && !redirect) {
+            returnUrl = '../admin/dashboard.html';
+        } else {
+            returnUrl = urlParams.get('returnUrl') || '../dashboard.html';
+        }
         
         // Check if we're on an auth page
         if (window.location.pathname.includes('/auth/')) {
@@ -336,6 +347,7 @@ class AuthManager {
                         id: user.id,
                         email: user.email,
                         full_name: fullName,
+                        role: 'user',
                         created_at: new Date().toISOString(),
                         updated_at: new Date().toISOString()
                     }
@@ -346,6 +358,24 @@ class AuthManager {
             }
         } catch (error) {
             console.error('Failed to create user profile:', error);
+        }
+    }
+
+    // Check if user has admin role
+    async checkAdminRole(userId) {
+        if (!this.supabase) return false;
+        
+        try {
+            const { data, error } = await this.supabase
+                .from('user_profiles')
+                .select('role')
+                .eq('id', userId)
+                .single();
+            
+            return !error && data?.role === 'admin';
+        } catch (error) {
+            console.error('Error checking admin role:', error);
+            return false;
         }
     }
 
