@@ -133,6 +133,12 @@
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
 
+        // Fallback configuration in case config.js fails
+        const FALLBACK_CONFIG = {
+            supabaseUrl: 'https://brecotrpmeiwktcffdws.supabase.co',
+            supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI'
+        };
+
         class AdminLogin {
             constructor() {
                 this.supabase = null;
@@ -141,20 +147,83 @@
 
             async init() {
                 try {
-                    // Load configuration
-                    const config = await window.loadSupabaseConfig();
+                    console.log('🚀 Initializing admin login system...');
                     
+                    // Wait a bit for config.js to load
+                    let retryCount = 0;
+                    while (!window.loadSupabaseConfig && retryCount < 10) {
+                        console.log('⏳ Waiting for config manager...');
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        retryCount++;
+                    }
+
+                    if (!window.loadSupabaseConfig) {
+                        throw new Error('Config manager not loaded');
+                    }
+
+                    // Load configuration
+                    console.log('📝 Loading Supabase configuration...');
+                    let config;
+                    
+                    try {
+                        config = await window.loadSupabaseConfig();
+                        console.log('✅ Configuration loaded from config manager');
+                    } catch (configError) {
+                        console.warn('⚠️ Config manager failed, using fallback:', configError);
+                        config = FALLBACK_CONFIG;
+                    }
+                    
+                    console.log('✅ Configuration ready:', { 
+                        hasUrl: !!config.supabaseUrl, 
+                        hasKey: !!config.supabaseAnonKey 
+                    });
+                    
+                    // Validate configuration
+                    if (!config.supabaseUrl || !config.supabaseAnonKey) {
+                        throw new Error('Missing Supabase configuration');
+                    }
+
                     // Initialize Supabase
+                    console.log('🔗 Connecting to Supabase...');
                     this.supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
+                    
+                    // Test connection
+                    const { data: testData, error: testError } = await this.supabase.auth.getSession();
+                    if (testError) {
+                        console.warn('⚠️ Supabase connection test warning:', testError);
+                    } else {
+                        console.log('✅ Supabase connected successfully');
+                    }
                     
                     this.setupEventListeners();
                     
                     // Check if already logged in as admin
                     await this.checkExistingAdminSession();
                     
+                    console.log('🎯 Admin login system ready!');
+                    
                 } catch (error) {
-                    console.error('Initialization error:', error);
-                    this.showAlert('error', 'সিস্টেম ইনিশিয়ালাইজেশন এরর। পুনরায় চেষ্টা করুন।');
+                    console.error('💥 Initialization error:', error);
+                    
+                    let errorMessage = 'সিস্টেম ইনিশিয়ালাইজেশন এরর।';
+                    
+                    if (error.message.includes('Config manager not loaded')) {
+                        errorMessage = 'কনফিগারেশন লোড হচ্ছে না। পেজ রিফ্রেশ করুন।';
+                    } else if (error.message.includes('Missing Supabase configuration')) {
+                        errorMessage = 'ডাটাবেস কনফিগারেশন পাওয়া যাচ্ছে না।';
+                    } else if (error.message.includes('createClient')) {
+                        errorMessage = 'ডাটাবেস সংযোগে সমস্যা। নেটওয়ার্ক চেক করুন।';
+                    }
+                    
+                    this.showAlert('error', errorMessage + ' পুনরায় চেষ্টা করুন।');
+                    
+                    // Provide retry button
+                    setTimeout(() => {
+                        const alertEl = document.getElementById('alert');
+                        if (alertEl && !alertEl.classList.contains('hidden')) {
+                            alertEl.innerHTML += '<br><button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">পুনরায় লোড করুন</button>';
+                        }
+                    }, 1000);
                 }
             }
 

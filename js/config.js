@@ -328,3 +328,13 @@ window.configManager = new ConfigManager();
 window.getConfig = (key, defaultValue) => window.configManager.get(key, defaultValue);
 window.setConfig = (key, value) => window.configManager.set(key, value);
 window.resetAPIKey = () => window.configManager.resetAPIKey();
+
+// Load Supabase configuration function for admin login
+window.loadSupabaseConfig = async () => {
+    await window.configManager.initialize();
+    const supabaseConfig = window.configManager.getSupabaseConfig();
+    return {
+        supabaseUrl: supabaseConfig.url,
+        supabaseAnonKey: supabaseConfig.anonKey
+    };
+};
