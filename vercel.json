@@ -1,9 +1,7 @@
 {
-  "functions": {
-    "api/env.js": {
-      "runtime": "@vercel/node"
-    }
-  },
+  "buildCommand": "echo 'No build step required for static site'",
+  "outputDirectory": ".",
+  "framework": null,
   "rewrites": [
     {
       "source": "/admin",
