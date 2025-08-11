@@ -1,0 +1,72 @@
+{
+  "name": "mental-health-ai",
+  "version": "1.0.0",
+  "description": "Bangladesh's first AI-powered mental health platform with Bengali language support",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "dev": "python server.py",
+    "build": "echo 'No build step required for this frontend project'",
+    "test": "echo 'No tests specified' && exit 0",
+    "lint": "echo 'Linting HTML/CSS/JS files...'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "python": ">=3.8",
+    "http.server": "built-in"
+  },
+  "engines": {
+    "python": ">=3.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codewithtanvir/mental-health-ai.git"
+  },
+  "keywords": [
+    "mental-health",
+    "ai-chatbot",
+    "bangladesh",
+    "bengali",
+    "healthcare",
+    "gemini-ai",
+    "supabase"
+  ],
+  "author": "Mental Health AI Bangladesh Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codewithtanvir/mental-health-ai/issues"
+  },
+  "homepage": "https://mental-health-ai.vercel.app",
+  "production": {
+    "environment": "production",
+    "security": {
+      "cors_enabled": true,
+      "rate_limiting": true,
+      "content_security_policy": true,
+      "https_redirect": true
+    },
+    "performance": {
+      "caching": true,
+      "compression": true,
+      "minification": true,
+      "lazy_loading": true
+    },
+    "monitoring": {
+      "error_tracking": true,
+      "performance_monitoring": true,
+      "analytics": true
+    },
+    "deployment": {
+      "platform": "vercel",
+      "auto_deploy": true,
+      "environment_variables": [
+        "GEMINI_API_KEY",
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "NODE_ENV",
+        "ADMIN_EMAIL",
+        "SUPPORT_EMAIL"
+      ]
+    }
+  }
+}

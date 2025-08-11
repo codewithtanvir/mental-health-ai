@@ -1,0 +1,9 @@
+# Python HTTP Server Requirements
+# No additional packages required for basic Python HTTP server
+# Uncomment and add packages as needed:
+
+# Flask==2.3.2
+# FastAPI==0.103.0
+# uvicorn==0.23.2
+# requests==2.31.0
+# python-dotenv==1.0.0

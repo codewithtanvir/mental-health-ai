@@ -36,8 +36,8 @@ class DashboardManager {
     }
 
     // Initialize dashboard
-    init() {
-        this.loadUserData();
+    async init() {
+        await this.loadUserData();
         this.setupEventListeners();
         this.loadDashboardData();
         this.displayDailyQuote();
@@ -45,35 +45,70 @@ class DashboardManager {
         this.loadMoodData();
     }
 
-    // Load current user data
-    loadUserData() {
-        if (window.AuthManager) {
-            this.user = window.AuthManager.getCurrentUser();
-            if (this.user) {
-                this.displayUserInfo();
+    // Load current user data from Supabase
+    async loadUserData() {
+        try {
+            if (this.supabase) {
+                const { data: { user } } = await this.supabase.auth.getUser();
+                if (user) {
+                    this.user = {
+                        id: user.id,
+                        email: user.email,
+                        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'ব্যবহারকারী',
+                        created_at: user.created_at,
+                        last_sign_in_at: user.last_sign_in_at
+                    };
+                    this.displayUserInfo();
+                }
             }
+        } catch (error) {
+            console.error('Error loading user data:', error);
         }
     }
 
     // Display user information
     displayUserInfo() {
-        const userNameElement = document.getElementById('user-name');
-        const welcomeNameElement = document.getElementById('welcome-name');
+        if (!this.user) return;
+
+        const elements = {
+            'user-name': this.user.name,
+            'welcome-name': this.user.name,
+            'user-email': this.user.email,
+            'menu-user-email': this.user.email
+        };
+
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+
+        // Update avatar
         const userAvatarElement = document.getElementById('user-avatar');
-
-        if (userNameElement) {
-            userNameElement.textContent = this.user.name;
-        }
-
-        if (welcomeNameElement) {
-            welcomeNameElement.textContent = this.user.name;
-        }
-
         if (userAvatarElement) {
-            if (this.user.avatar) {
-                userAvatarElement.src = this.user.avatar;
-            } else {
-                userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.user.name)}&background=0d9488&color=fff`;
+            userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.user.name)}&background=0d9488&color=fff`;
+        }
+
+        // Update join date
+        if (this.user.created_at) {
+            const joinDateElement = document.getElementById('join-date');
+            if (joinDateElement) {
+                const joinDate = new Date(this.user.created_at);
+                joinDateElement.textContent = joinDate.toLocaleDateString('bn-BD', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // Update last login
+        if (this.user.last_sign_in_at) {
+            const lastLoginElement = document.getElementById('last-login');
+            if (lastLoginElement) {
+                const lastLogin = new Date(this.user.last_sign_in_at);
+                lastLoginElement.textContent = this.formatDate(lastLogin.toISOString());
             }
         }
     }
@@ -122,29 +157,69 @@ class DashboardManager {
     // Load dashboard data
     async loadDashboardData() {
         try {
-            // Load stats from localStorage for now
-            // In a real app, this would come from Supabase
-            const stats = this.loadUserStats();
-            this.displayStats(stats);
-            
-            // Load recent chats
-            this.loadRecentChats();
-            
+            if (this.user && this.supabase) {
+                // Load real stats from Supabase
+                await this.loadRealStats();
+            } else {
+                // Fallback to localStorage
+                const stats = this.loadLocalStats();
+                this.displayStats(stats);
+            }
         } catch (error) {
             console.error('Error loading dashboard data:', error);
+            // Fallback to localStorage
+            const stats = this.loadLocalStats();
+            this.displayStats(stats);
         }
     }
 
-    // Load user statistics
-    loadUserStats() {
+    // Load real statistics from Supabase
+    async loadRealStats() {
+        try {
+            // Get chat count
+            const { count: chatCount } = await this.supabase
+                .from('chat_messages')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', this.user.id);
+
+            // Get active days (distinct dates from chat_messages)
+            const { data: chatDates } = await this.supabase
+                .from('chat_messages')
+                .select('created_at')
+                .eq('user_id', this.user.id);
+
+            const uniqueDates = new Set();
+            if (chatDates) {
+                chatDates.forEach(record => {
+                    const date = new Date(record.created_at).toDateString();
+                    uniqueDates.add(date);
+                });
+            }
+
+            const stats = {
+                totalChats: chatCount || 0,
+                activeDays: uniqueDates.size
+            };
+
+            this.displayStats(stats);
+        } catch (error) {
+            console.error('Error loading real stats:', error);
+            // Fallback to localStorage
+            const stats = this.loadLocalStats();
+            this.displayStats(stats);
+        }
+    }
+
+    // Load user statistics from localStorage (fallback)
+    loadLocalStats() {
         const defaultStats = {
             totalChats: 0,
-            activeDays: 0,
-            goalsAchieved: 0,
-            articlesRead: 0
+            activeDays: 0
         };
 
-        const savedStats = localStorage.getItem(`mental_health_stats_${this.user?.id}`);
+        if (!this.user) return defaultStats;
+
+        const savedStats = localStorage.getItem(`mental_health_stats_${this.user.id}`);
         if (savedStats) {
             return { ...defaultStats, ...JSON.parse(savedStats) };
         }
@@ -156,9 +231,7 @@ class DashboardManager {
     displayStats(stats) {
         const elements = {
             'total-chats': stats.totalChats,
-            'active-days': stats.activeDays,
-            'goals-achieved': stats.goalsAchieved,
-            'articles-read': stats.articlesRead
+            'active-days': stats.activeDays
         };
 
         Object.entries(elements).forEach(([id, value]) => {
@@ -171,6 +244,11 @@ class DashboardManager {
 
     // Animate number counting
     animateNumber(element, start, end, duration) {
+        if (start === end) {
+            element.textContent = end;
+            return;
+        }
+
         const range = end - start;
         const minTimer = 50;
         const stepTime = Math.abs(Math.floor(duration / range));
@@ -187,29 +265,6 @@ class DashboardManager {
                 clearInterval(obj);
             }
         }, timer);
-    }
-
-    // Load recent chats
-    loadRecentChats() {
-        const recentChatsContainer = document.getElementById('recent-chats');
-        if (!recentChatsContainer) return;
-
-        // Load from localStorage for now
-        const chatHistory = localStorage.getItem(`mental_health_chats_${this.user?.id}`);
-        
-        if (chatHistory) {
-            const chats = JSON.parse(chatHistory);
-            const recentChats = chats.slice(-3).reverse(); // Get last 3 chats
-
-            if (recentChats.length > 0) {
-                recentChatsContainer.innerHTML = recentChats.map(chat => `
-                    <div class="border-l-4 border-teal-500 pl-4 py-2">
-                        <p class="text-sm text-gray-800">${this.truncateText(chat.message, 60)}</p>
-                        <p class="text-xs text-gray-500">${this.formatDate(chat.timestamp)}</p>
-                    </div>
-                `).join('');
-            }
-        }
     }
 
     // Select mood
@@ -252,10 +307,28 @@ class DashboardManager {
                 timestamp: new Date().toISOString()
             };
 
-            // Save to localStorage for now
-            const moodHistory = this.loadMoodHistory();
-            moodHistory[today] = moodData;
-            localStorage.setItem(`mental_health_moods_${this.user.id}`, JSON.stringify(moodHistory));
+            // Try to save to Supabase if available
+            if (this.supabase) {
+                try {
+                    const { error } = await this.supabase
+                        .from('mood_entries')
+                        .upsert([{
+                            user_id: this.user.id,
+                            date: today,
+                            mood: this.selectedMood,
+                            created_at: new Date().toISOString()
+                        }]);
+
+                    if (error) throw error;
+                } catch (dbError) {
+                    console.error('Database save failed, using localStorage:', dbError);
+                    // Fallback to localStorage
+                    this.saveMoodToLocalStorage(moodData);
+                }
+            } else {
+                // Fallback to localStorage
+                this.saveMoodToLocalStorage(moodData);
+            }
 
             // Show success message
             this.showNotification('মেজাজ সফলভাবে সেভ হয়েছে!', 'success');
@@ -268,35 +341,65 @@ class DashboardManager {
                 saveMoodBtn.textContent = 'সেভ হয়েছে';
             }
 
-            // Update stats
-            this.updateStats('moodsSaved', 1);
-
         } catch (error) {
             console.error('Error saving mood:', error);
             this.showNotification('মেজাজ সেভ করতে সমস্যা হয়েছে।', 'error');
         }
     }
 
-    // Load mood data
-    loadMoodData() {
-        const today = new Date().toISOString().split('T')[0];
+    // Save mood to localStorage
+    saveMoodToLocalStorage(moodData) {
         const moodHistory = this.loadMoodHistory();
-        
+        moodHistory[moodData.date] = moodData;
+        localStorage.setItem(`mental_health_moods_${this.user.id}`, JSON.stringify(moodHistory));
+    }
+
+    // Load mood data
+    async loadMoodData() {
+        if (!this.user) return;
+
+        const today = new Date().toISOString().split('T')[0];
+
+        try {
+            // Try to load from Supabase first
+            if (this.supabase) {
+                const { data, error } = await this.supabase
+                    .from('mood_entries')
+                    .select('mood')
+                    .eq('user_id', this.user.id)
+                    .eq('date', today)
+                    .single();
+
+                if (!error && data) {
+                    this.selectMood(data.mood);
+                    this.disableMoodSave();
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading mood from database:', error);
+        }
+
+        // Fallback to localStorage
+        const moodHistory = this.loadMoodHistory();
         if (moodHistory[today]) {
             const todayMood = moodHistory[today].mood;
             this.selectMood(todayMood);
-            
-            // Disable save button since mood is already saved
-            const saveMoodBtn = document.getElementById('save-mood');
-            if (saveMoodBtn) {
-                saveMoodBtn.disabled = true;
-                saveMoodBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                saveMoodBtn.textContent = 'আজকে সেভ হয়েছে';
-            }
+            this.disableMoodSave();
         }
     }
 
-    // Load mood history
+    // Disable mood save button
+    disableMoodSave() {
+        const saveMoodBtn = document.getElementById('save-mood');
+        if (saveMoodBtn) {
+            saveMoodBtn.disabled = true;
+            saveMoodBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            saveMoodBtn.textContent = 'আজকে সেভ হয়েছে';
+        }
+    }
+
+    // Load mood history from localStorage
     loadMoodHistory() {
         if (!this.user) return {};
         
@@ -322,48 +425,18 @@ class DashboardManager {
         }
     }
 
-    // Update user statistics
-    updateStats(statType, increment = 1) {
-        if (!this.user) return;
-
-        const stats = this.loadUserStats();
-        
-        switch (statType) {
-            case 'chatsCompleted':
-                stats.totalChats += increment;
-                break;
-            case 'activeDays':
-                // Check if this is the first activity today
-                const today = new Date().toISOString().split('T')[0];
-                const lastActiveDate = localStorage.getItem(`mental_health_last_active_${this.user.id}`);
-                
-                if (lastActiveDate !== today) {
-                    stats.activeDays += increment;
-                    localStorage.setItem(`mental_health_last_active_${this.user.id}`, today);
-                }
-                break;
-            case 'goalsAchieved':
-                stats.goalsAchieved += increment;
-                break;
-            case 'articlesRead':
-                stats.articlesRead += increment;
-                break;
-        }
-
-        // Save updated stats
-        localStorage.setItem(`mental_health_stats_${this.user.id}`, JSON.stringify(stats));
-        
-        // Update display
-        this.displayStats(stats);
-    }
-
     // Handle logout
     async handleLogout() {
         if (confirm('আপনি কি লগআউট করতে চান?')) {
-            if (window.AuthManager) {
-                await window.AuthManager.logout();
+            try {
+                if (this.supabase) {
+                    await this.supabase.auth.signOut();
+                }
+                window.location.href = 'auth/login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = 'auth/login.html';
             }
-            window.location.href = 'auth/login.html';
         }
     }
 
@@ -376,11 +449,6 @@ class DashboardManager {
             hash = hash & hash; // Convert to 32-bit integer
         }
         return hash;
-    }
-
-    truncateText(text, maxLength) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
     }
 
     formatDate(isoString) {
@@ -409,8 +477,7 @@ class DashboardManager {
         const colors = {
             success: 'bg-green-100 border border-green-200 text-green-700',
             error: 'bg-red-100 border border-red-200 text-red-700',
-            info: 'bg-blue-100 border border-blue-200 text-blue-700',
-            warning: 'bg-yellow-100 border border-yellow-200 text-yellow-700'
+            info: 'bg-blue-100 border border-blue-200 text-blue-700'
         };
         
         notification.className += ` ${colors[type] || colors.info}`;
@@ -441,49 +508,6 @@ class DashboardManager {
                 }
             }, 300);
         }, 5000);
-    }
-
-    // Get user activity summary
-    getActivitySummary() {
-        if (!this.user) return null;
-
-        const stats = this.loadUserStats();
-        const moodHistory = this.loadMoodHistory();
-        const moodEntries = Object.keys(moodHistory).length;
-
-        return {
-            totalChats: stats.totalChats,
-            activeDays: stats.activeDays,
-            moodEntries: moodEntries,
-            joinDate: this.user.loginTime || new Date().toISOString(),
-            lastActivity: new Date().toISOString()
-        };
-    }
-
-    // Export user data (for privacy/GDPR compliance)
-    exportUserData() {
-        if (!this.user) return null;
-
-        const userData = {
-            profile: this.user,
-            stats: this.loadUserStats(),
-            moodHistory: this.loadMoodHistory(),
-            exportDate: new Date().toISOString()
-        };
-
-        // Create downloadable file
-        const dataStr = JSON.stringify(userData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mental-health-data-${this.user.id}-${Date.now()}.json`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        
-        this.showNotification('আপনার ডেটা ডাউনলোড হচ্ছে।', 'success');
     }
 }
 

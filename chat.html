@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI চ্যাটবট - মানসিক স্বাস্থ্য এআই</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="আমাদের AI চ্যাটবটের সাথে মানসিক স্বাস্থ্য নিয়ে কথা বলুন">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Chat Styles -->
+    <link href="css/chat.css" rel="stylesheet">
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        .chat-container {
+            height: calc(100vh - 140px);
+            background: white;
+        }
+        
+        .chat-messages {
+            height: calc(100% - 160px);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: #f9fafb;
+        }
+        
+        .chat-bubble {
+            max-width: 80%;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .chat-bubble-ai {
+            background: #f1f5f9;
+            color: #1e293b;
+            margin-right: auto;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #64748b;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .chat-input {
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+        }
+        
+        .send-button {
+            transition: all 0.2s ease;
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .welcome-message {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-2xl font-bold text-teal-600">মানসিক স্বাস্থ্য এআই</a>
+                <span class="text-gray-300">|</span>
+                <h1 class="text-lg font-semibold text-gray-700">🤖 AI চ্যাটবট</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="text-gray-600 hover:text-teal-600 transition duration-300">হোম</a>
+                <a href="dashboard.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ড্যাশবোর্ড</a>
+                <a href="pages/blog.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ব্লগ</a>
+                <a href="pages/resources.html" class="text-gray-600 hover:text-teal-600 transition duration-300">রিসোর্স</a>
+            </div>
+
+            <!-- User Menu -->
+            <div class="relative">
+                <button id="user-menu-button" class="flex items-center space-x-2 text-gray-600 hover:text-teal-600 transition duration-300">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=0d9488&color=fff" alt="User" class="w-8 h-8 rounded-full">
+                    <span id="user-name">Loading...</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <div class="block px-4 py-2 text-sm text-gray-700 border-b">
+                        <div class="font-semibold" id="menu-user-email">Loading...</div>
+                        <div class="text-xs text-gray-500">ব্যবহারকারী</div>
+                    </div>
+                    <a href="index.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">হোম পেজ</a>
+                    <a href="dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">ড্যাশবোর্ড</a>
+                    <hr class="my-1">
+                    <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">লগআউট</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Chat Interface -->
+    <main class="container mx-auto px-6 py-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- Chat Container -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                <!-- Chat Header -->
+                <div class="bg-white border-b border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl">🤖</span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800">জেমিনি এআই</h2>
+                                <p class="text-sm text-gray-600">আপনার মানসিক স্বাস্থ্য সহায়ক</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm text-gray-600">অনলাইন</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="h-96 bg-gray-50 p-4 overflow-y-auto">
+                    <!-- Welcome Message -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">👋</span>
+                            <div>
+                                <h3 class="font-semibold text-gray-800 mb-2">স্বাগতম!</h3>
+                                <p class="text-gray-700 text-sm mb-3">
+                                    আমি জেমিনি, আপনার মানসিক স্বাস্থ্য সহকারী। আজ আপনার কেমন লাগছে? 
+                                    আপনি নির্দ্বিধায় আপনার মনের কথা বলতে পারেন।
+                                </p>
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg">
+                                    <p class="text-xs text-yellow-800">
+                                        <strong>গুরুত্বপূর্ণ:</strong> এই চ্যাটবট শুধুমাত্র প্রাথমিক সহায়তার জন্য। 
+                                        জরুরি প্রয়োজনে পেশাদার চিকিৎসকের সাথে যোগাযোগ করুন।
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Key Status -->
+                    <div id="api-status" class="hidden mb-4">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>API Key প্রয়োজন:</strong> চ্যাটবট ব্যবহার করার জন্য অনুগ্রহ করে আপনার .env ফাইলে GEMINI_API_KEY যোগ করুন।
+                                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline hover:no-underline">API Key পেতে এখানে ক্লিক করুন</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat bubbles will be added here dynamically -->
+                    
+                    <!-- Typing Indicator -->
+                    <div id="typing-indicator" class="typing-indicator">
+                        <div class="chat-bubble chat-bubble-ai flex items-center">
+                            <div class="typing-dots mr-2">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                            <span class="text-sm text-gray-500">জেমিনি টাইপ করছে...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="border-t border-gray-200 bg-white p-4">
+                    <!-- Quick Actions Above Input -->
+                    <div id="quick-suggestions" class="mb-3 flex flex-wrap gap-2 max-h-20 overflow-y-auto">
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="আমার আজকের দিনটা কেমন কাটলো সেটা নিয়ে কথা বলতে চাই">
+                            📅 আজকের দিন
+                        </button>
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="মানসিক চাপ কমানোর কিছু কার্যকর উপায় বলো">
+                            🧘 স্ট্রেস রিলিফ
+                        </button>
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="আমার আত্মবিশ্বাস বাড়ানোর জন্য কী করতে পারি?">
+                            💪 আত্মবিশ্বাস
+                        </button>
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="ভালো ঘুমের জন্য কিছু পরামর্শ দাও">
+                            😴 ভালো ঘুম
+                        </button>
+                    </div>
+                    
+                    <form id="chat-form" class="space-y-3">
+                        <!-- Enhanced Input Area -->
+                        <div class="relative">
+                            <textarea 
+                                id="chat-input" 
+                                placeholder="আপনার মনের কথা এখানে লিখুন... (আমি আপনার সাথে আছি 💙)"
+                                class="chat-input w-full px-4 py-3 pr-16 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none transition-all duration-200 placeholder-gray-400"
+                                rows="1"
+                                maxlength="1000"
+                            ></textarea>
+                            
+                            <!-- Voice Input Button (Future Feature) -->
+                            <button 
+                                type="button" 
+                                id="voice-input-btn"
+                                class="absolute right-3 top-3 p-2 text-gray-400 hover:text-teal-600 transition-colors disabled:opacity-50"
+                                title="ভয়েস ইনপুট (শীঘ্রই আসছে)"
+                                disabled
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Input Controls -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Emoji Picker -->
+                                <button 
+                                    type="button" 
+                                    id="emoji-btn"
+                                    class="flex items-center space-x-1 text-gray-500 hover:text-teal-600 transition-colors"
+                                >
+                                    <span class="text-lg">😊</span>
+                                    <span class="text-xs">ইমোজি</span>
+                                </button>
+                                
+                                <!-- Clear Button -->
+                                <button 
+                                    type="button" 
+                                    id="clear-btn"
+                                    class="flex items-center space-x-1 text-gray-500 hover:text-red-600 transition-colors"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    <span class="text-xs">সাফ করুন</span>
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3">
+                                <!-- Character Count -->
+                                <span id="char-count" class="text-xs text-gray-500">0/1000</span>
+                                
+                                <!-- Send Button -->
+                                <button 
+                                    type="submit" 
+                                    id="send-button"
+                                    class="send-button bg-teal-600 text-white px-6 py-2 rounded-xl hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                                >
+                                    <svg id="send-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg>
+                                    <span id="send-text">পাঠান</span>
+                                    <div id="send-loader" class="hidden w-5 h-5">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Input Helper Text -->
+                    <div class="mt-2 text-xs text-gray-500 flex items-center justify-between">
+                        <span>💡 Shift + Enter দিয়ে নতুন লাইন, Enter দিয়ে পাঠান</span>
+                        <span id="typing-status" class="text-teal-600 hidden">✍️ টাইপ করছেন...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Quick Actions -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <span class="mr-2">🎯</span>
+                    দ্রুত সহায়তা
+                </h3>
+                
+                <!-- Action Categories -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <!-- Mood Management -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                        <h4 class="font-medium text-blue-800 mb-3 flex items-center">
+                            <span class="mr-2">💙</span>
+                            মানসিক অবস্থা
+                        </h4>
+                        <div class="space-y-2">
+                            <button class="quick-action w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="আজ আমার মন খুব খারাপ। কী করতে পারি?" 
+                                    data-category="mood">
+                                <div class="text-blue-700 text-sm font-medium">😔 মন খারাপ লাগছে</div>
+                                <div class="text-blue-600 text-xs mt-1">মানসিক চাপ কমানোর উপায়</div>
+                            </button>
+                            <button class="quick-action w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="অনেক দুশ্চিন্তা হচ্ছে। কীভাবে শান্ত থাকব?" 
+                                    data-category="anxiety">
+                                <div class="text-blue-700 text-sm font-medium">😰 দুশ্চিন্তা</div>
+                                <div class="text-blue-600 text-xs mt-1">চিন্তা কমানোর কৌশল</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Daily Life -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                        <h4 class="font-medium text-green-800 mb-3 flex items-center">
+                            <span class="mr-2">🌱</span>
+                            দৈনন্দিন জীবন
+                        </h4>
+                        <div class="space-y-2">
+                            <button class="quick-action w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="ঘুমের সমস্যা হচ্ছে। ভালো ঘুমের জন্য কী করব?" 
+                                    data-category="sleep">
+                                <div class="text-green-700 text-sm font-medium">😴 ঘুমের সমস্যা</div>
+                                <div class="text-green-600 text-xs mt-1">ভালো ঘুমের টিপস</div>
+                            </button>
+                            <button class="quick-action w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="পড়াশোনায় মনোযোগ দিতে পারছি না। সাহায্য চাই।" 
+                                    data-category="focus">
+                                <div class="text-green-700 text-sm font-medium">📚 মনোযোগের অভাব</div>
+                                <div class="text-green-600 text-xs mt-1">ফোকাস বাড়ানোর উপায়</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Emotional Support -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                        <h4 class="font-medium text-purple-800 mb-3 flex items-center">
+                            <span class="mr-2">💜</span>
+                            আবেগ নিয়ন্ত্রণ
+                        </h4>
+                        <div class="space-y-2">
+                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="রাগ নিয়ন্ত্রণ করতে পারছি না। সাহায্য চাই।" 
+                                    data-category="anger">
+                                <div class="text-purple-700 text-sm font-medium">😡 রাগ নিয়ন্ত্রণ</div>
+                                <div class="text-purple-600 text-xs mt-1">রাগ ম্যানেজমেন্ট</div>
+                            </button>
+                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="আত্মবিশ্বাস কম লাগছে। কীভাবে বাড়াবো?" 
+                                    data-category="confidence">
+                                <div class="text-purple-700 text-sm font-medium">💪 আত্মবিশ্বাস</div>
+                                <div class="text-purple-600 text-xs mt-1">আত্মবিশ্বাস বৃদ্ধি</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Quick Topics -->
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                        <span class="mr-2">⚡</span>
+                        জনপ্রিয় বিষয়
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
+                                data-message="মেডিটেশন কীভাবে শুরু করব?">
+                            🧘‍♀️ মেডিটেশন
+                        </button>
+                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
+                                data-message="ব্রিদিং এক্সারসাইজ শেখাও">
+                            🫁 শ্বাসের ব্যায়াম
+                        </button>
+                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
+                                data-message="পজিটিভ থিংকিং এর উপায়">
+                            ✨ ইতিবাচক চিন্তা
+                        </button>
+                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
+                                data-message="মানসিক চাপ কমানোর খাবার">
+                            🥗 স্বাস্থ্যকর খাবার
+                        </button>
+                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
+                                data-message="ভালো বন্ধুত্ব কীভাবে গড়ব?">
+                            👥 সামাজিক সম্পর্ক
+                        </button>
+                    </div>
+                </div>
+            </div>
+                    <div class="text-purple-600 text-sm font-medium">😤 রাগ নিয়ন্ত্রণ</div>
+                    <div class="text-purple-500 text-xs mt-1">রাগ ম্যানেজমেন্ট</div>
+                </button>
+            </div>
+
+            <!-- Emergency Notice -->
+            <div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-start space-x-3">
+                    <span class="text-red-500 text-xl">🚨</span>
+                    <div>
+                        <h3 class="font-semibold text-red-800 mb-1">জরুরি অবস্থায়</h3>
+                        <p class="text-red-700 text-sm mb-2">
+                            যদি আপনি আত্মহত্যার চিন্তা করেন বা গুরুতর মানসিক সমস্যায় ভুগেন, 
+                            অবিলম্বে পেশাদার সাহায্য নিন।
+                        </p>
+                        <a href="pages/resources.html" class="inline-flex items-center text-red-600 hover:text-red-800 font-medium text-sm">
+                            জরুরি হেল্পলাইন →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+        <!-- JavaScript -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const SUPABASE_URL = 'https://brecotrpmeiwktcffdws.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI';
+            
+            try {
+                // Initialize configuration first
+                await window.configManager.initialize();
+                
+                // Check API key status
+                const apiKey = window.configManager.get('GEMINI_API_KEY');
+                if (!apiKey || apiKey.trim() === '') {
+                    document.getElementById('api-status').classList.remove('hidden');
+                }
+                
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    window.location.href = 'auth/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                
+                // Update user info in header
+                document.getElementById('user-name').textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || 'ব্যবহারকারী';
+                document.getElementById('menu-user-email').textContent = user.email;
+                document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.email?.split('@')[0] || 'User')}&background=0d9488&color=fff`;
+                
+                // Setup user menu
+                setupUserMenu();
+                
+                // Setup logout
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    if (confirm('আপনি কি লগআউট করতে চান?')) {
+                        await supabase.auth.signOut();
+                        window.location.href = 'auth/login.html';
+                    }
+                });
+                
+                // Initialize chat functionality
+                if (window.mentalHealthApp) {
+                    // Override the chat elements for this page
+                    window.mentalHealthApp.chatDisplay = document.getElementById('chat-messages');
+                    window.mentalHealthApp.chatInput = document.getElementById('chat-input');
+                    window.mentalHealthApp.sendBtn = document.getElementById('send-button');
+                    window.mentalHealthApp.sendBtnIcon = document.getElementById('send-icon');
+                    window.mentalHealthApp.chatLoader = document.getElementById('send-loader');
+                    
+                    // Re-bind events for this page
+                    setupChatInterface();
+                }
+                
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = 'auth/login.html';
+            }
+        });
+
+        function setupUserMenu() {
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userMenu = document.getElementById('user-menu');
+
+            if (userMenuButton && userMenu) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        function setupChatInterface() {
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const chatForm = document.getElementById('chat-form');
+            const charCount = document.getElementById('char-count');
+            const quickActions = document.querySelectorAll('.quick-action');
+            const suggestionPills = document.querySelectorAll('.suggestion-pill');
+            const emojiBtn = document.getElementById('emoji-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const typingStatus = document.getElementById('typing-status');
+            
+            let typingTimer;
+            let isTyping = false;
+
+            // Enhanced auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                
+                // Update character count with better UX
+                const count = this.value.length;
+                charCount.textContent = `${count}/1000`;
+                
+                if (count > 950) {
+                    charCount.className = 'text-red-500 font-medium';
+                } else if (count > 800) {
+                    charCount.className = 'text-yellow-500';
+                } else {
+                    charCount.className = 'text-gray-500';
+                }
+                
+                // Enable/disable send button
+                sendButton.disabled = !this.value.trim() || count > 1000;
+                
+                // Show typing indicator
+                showTypingIndicator();
+            });
+
+            // Typing indicator functionality
+            function showTypingIndicator() {
+                if (!isTyping) {
+                    isTyping = true;
+                    typingStatus.classList.remove('hidden');
+                }
+                
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    isTyping = false;
+                    typingStatus.classList.add('hidden');
+                }, 1000);
+            }
+
+            // Enhanced form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (window.mentalHealthApp && !window.mentalHealthApp.isLoading) {
+                    // Hide typing indicator
+                    typingStatus.classList.add('hidden');
+                    isTyping = false;
+                    
+                    // Send message
+                    window.mentalHealthApp.handleSendMessage();
+                }
+            });
+
+            // Enhanced keyboard handling
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) {
+                        chatForm.dispatchEvent(new Event('submit'));
+                    }
+                }
+                
+                // Quick shortcuts
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'k': // Ctrl+K to clear chat
+                            e.preventDefault();
+                            clearChat();
+                            break;
+                        case 'l': // Ctrl+L to focus input
+                            e.preventDefault();
+                            chatInput.focus();
+                            break;
+                    }
+                }
+            });
+
+            // Clear input functionality
+            clearBtn.addEventListener('click', function() {
+                if (chatInput.value.trim()) {
+                    if (confirm('আপনি কি নিশ্চিত যে আপনি লেখা মুছে দিতে চান?')) {
+                        chatInput.value = '';
+                        chatInput.style.height = 'auto';
+                        charCount.textContent = '0/1000';
+                        charCount.className = 'text-gray-500';
+                        sendButton.disabled = true;
+                        chatInput.focus();
+                    }
+                }
+            });
+
+            // Emoji picker functionality (basic implementation)
+            emojiBtn.addEventListener('click', function() {
+                const emojis = ['😊', '😔', '😰', '😴', '😡', '💪', '🙏', '❤️', '😌', '🤗', '😞', '😯'];
+                const emojiPicker = document.createElement('div');
+                emojiPicker.className = 'absolute bottom-full left-0 mb-2 bg-white border border-gray-300 rounded-lg shadow-lg p-3 grid grid-cols-6 gap-2 z-50';
+                
+                emojis.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.textContent = emoji;
+                    btn.className = 'text-xl hover:bg-gray-100 rounded p-1 transition-colors';
+                    btn.addEventListener('click', () => {
+                        const cursorPos = chatInput.selectionStart;
+                        const textBefore = chatInput.value.substring(0, cursorPos);
+                        const textAfter = chatInput.value.substring(chatInput.selectionEnd);
+                        
+                        chatInput.value = textBefore + emoji + textAfter;
+                        chatInput.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+                        chatInput.focus();
+                        
+                        // Trigger input event to update character count
+                        chatInput.dispatchEvent(new Event('input'));
+                        
+                        emojiPicker.remove();
+                    });
+                    emojiPicker.appendChild(btn);
+                });
+                
+                // Position relative to emoji button
+                emojiBtn.style.position = 'relative';
+                emojiBtn.appendChild(emojiPicker);
+                
+                // Remove picker when clicking outside
+                setTimeout(() => {
+                    document.addEventListener('click', function(e) {
+                        if (!emojiBtn.contains(e.target)) {
+                            emojiPicker.remove();
+                        }
+                    }, { once: true });
+                }, 100);
+            });
+
+            // Enhanced quick actions
+            function setupQuickActions() {
+                // Quick action buttons
+                quickActions.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const message = this.dataset.message;
+                        const category = this.dataset.category;
+                        
+                        // Add visual feedback
+                        this.classList.add('scale-95');
+                        setTimeout(() => this.classList.remove('scale-95'), 150);
+                        
+                        // Insert message into chat input
+                        chatInput.value = message;
+                        chatInput.focus();
+                        
+                        // Trigger input event to update character count and button state
+                        chatInput.dispatchEvent(new Event('input'));
+                        
+                        // Track usage for analytics
+                        if (category) {
+                            console.log(`Quick action used: ${category}`);
+                        }
+                        
+                        // Auto-scroll to input
+                        chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                });
+
+                // Suggestion pills
+                suggestionPills.forEach(pill => {
+                    pill.addEventListener('click', function() {
+                        const message = this.dataset.message;
+                        
+                        // Visual feedback
+                        this.classList.add('scale-95');
+                        setTimeout(() => this.classList.remove('scale-95'), 150);
+                        
+                        // Insert message
+                        chatInput.value = message;
+                        chatInput.focus();
+                        chatInput.dispatchEvent(new Event('input'));
+                        
+                        // Scroll to input
+                        chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                });
+            }
+
+            // Initialize quick actions
+            setupQuickActions();
+
+            // Chat clearing functionality
+            function clearChat() {
+                if (confirm('আপনি কি নিশ্চিত যে আপনি সমস্ত চ্যাট মুছে দিতে চান?')) {
+                    const chatMessages = document.getElementById('chat-messages');
+                    const welcomeMsg = chatMessages.querySelector('.welcome-message');
+                    
+                    // Keep only welcome message
+                    chatMessages.innerHTML = '';
+                    if (welcomeMsg) {
+                        chatMessages.appendChild(welcomeMsg.cloneNode(true));
+                    }
+                    
+                    // Clear chat history in app
+                    if (window.mentalHealthApp) {
+                        window.mentalHealthApp.chatHistory = [];
+                    }
+                    
+                    // Show success message
+                    showNotification('চ্যাট সাফ করা হয়েছে', 'success');
+                }
+            }
+
+            // Notification system
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+                
+                switch(type) {
+                    case 'success':
+                        notification.className += ' bg-green-500 text-white';
+                        break;
+                    case 'error':
+                        notification.className += ' bg-red-500 text-white';
+                        break;
+                    default:
+                        notification.className += ' bg-blue-500 text-white';
+                }
+                
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+                
+                // Animate out and remove
+                setTimeout(() => {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Initialize enhanced features
+            document.addEventListener('DOMContentLoaded', function() {
+                // Focus input on page load
+                chatInput.focus();
+                
+                // Add keyboard shortcuts help
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'F1') {
+                        e.preventDefault();
+                        showNotification('Shortcuts: Ctrl+K=Clear, Ctrl+L=Focus, Enter=Send', 'info');
+                    }
+                });
+                
+                // Auto-save draft
+                let draftTimer;
+                chatInput.addEventListener('input', function() {
+                    clearTimeout(draftTimer);
+                    draftTimer = setTimeout(() => {
+                        localStorage.setItem('chat-draft', this.value);
+                    }, 500);
+                });
+                
+                // Restore draft
+                const draft = localStorage.getItem('chat-draft');
+                if (draft && draft.trim()) {
+                    chatInput.value = draft;
+                    chatInput.dispatchEvent(new Event('input'));
+                }
+                
+                // Clear draft on send
+                chatForm.addEventListener('submit', function() {
+                    localStorage.removeItem('chat-draft');
+                });
+            });
+
+            // Enhanced error handling
+            window.addEventListener('error', function(e) {
+                console.error('Chat error:', e.error);
+                showNotification('একটি ত্রুটি ঘটেছে। পৃষ্ঠা রিফ্রেশ করে দেখুন।', 'error');
+            });
+        }
+
+            // Quick actions
+            quickActions.forEach(action => {
+                action.addEventListener('click', function() {
+                    const message = this.dataset.message;
+                    chatInput.value = message;
+                    chatInput.dispatchEvent(new Event('input'));
+                    chatInput.focus();
+                });
+            });
+
+            // Show typing indicator
+            window.showTypingIndicator = function() {
+                document.getElementById('typing-indicator').style.display = 'flex';
+                scrollToBottom();
+            };
+
+            // Hide typing indicator
+            window.hideTypingIndicator = function() {
+                document.getElementById('typing-indicator').style.display = 'none';
+            };
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Override the main app's addMessage function to work with this layout
+        if (window.mentalHealthApp) {
+            const originalAddMessage = window.mentalHealthApp.addMessage;
+            window.mentalHealthApp.addMessage = function(message, sender, isHTML = false) {
+                const chatMessages = document.getElementById('chat-messages');
+                if (!chatMessages) return;
+
+                // Hide typing indicator when adding AI message
+                if (sender === 'ai') {
+                    window.hideTypingIndicator();
+                }
+
+                const bubble = document.createElement('div');
+                bubble.classList.add('chat-bubble', `chat-bubble-${sender}`);
+                
+                const text = document.createElement('div');
+                text.classList.add('text-sm');
+                
+                if (isHTML) {
+                    text.innerHTML = message;
+                } else {
+                    text.innerHTML = this.formatMessage(message);
+                }
+                
+                bubble.appendChild(text);
+                
+                // Add timestamp for better UX
+                const timestamp = document.createElement('div');
+                timestamp.classList.add('text-xs', 'opacity-70', 'mt-1');
+                timestamp.textContent = new Date().toLocaleTimeString('bn-BD', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                bubble.appendChild(timestamp);
+                
+                chatMessages.appendChild(bubble);
+                scrollToBottom();
+                
+                // Show typing indicator for AI response
+                if (sender === 'user') {
+                    setTimeout(() => {
+                        window.showTypingIndicator();
+                    }, 500);
+                }
+            };
+
+            // Override the loading state methods
+            window.mentalHealthApp.showLoader = function(loader, btnText) {
+                const sendIcon = document.getElementById('send-icon');
+                const sendLoader = document.getElementById('send-loader');
+                
+                if (sendIcon) sendIcon.style.display = 'none';
+                if (sendLoader) sendLoader.classList.remove('hidden');
+            };
+
+            window.mentalHealthApp.hideLoader = function(loader, btnText) {
+                const sendIcon = document.getElementById('send-icon');
+                const sendLoader = document.getElementById('send-loader');
+                
+                if (sendIcon) sendIcon.style.display = 'block';
+                if (sendLoader) sendLoader.classList.add('hidden');
+            };
+        }
+    </script>
+</body>
+</html>

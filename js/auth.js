@@ -11,21 +11,30 @@ class AuthManager {
 
     // Initialize Supabase client
     initSupabase() {
-        // Replace these with your actual Supabase project URL and anon key
-        const SUPABASE_URL = process.env.SUPABASE_URL || 'your_supabase_url_here';
-        const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'your_supabase_anon_key_here';
+        // Use actual Supabase credentials
+        const SUPABASE_URL = 'https://brecotrpmeiwktcffdws.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI';
         
-        if (SUPABASE_URL === 'your_supabase_url_here' || SUPABASE_ANON_KEY === 'your_supabase_anon_key_here') {
-            console.warn('Supabase configuration not found. Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
-            return;
-        }
-
         try {
             this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabase client initialized successfully');
         } catch (error) {
             console.error('Failed to initialize Supabase client:', error);
         }
+    }
+
+    // Get the appropriate base URL for redirects
+    getBaseUrl() {
+        // Check if we're in production (Vercel)
+        if (window.location.hostname.includes('vercel.app')) {
+            return window.location.origin;
+        }
+        // Check if we're on localhost
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return window.location.origin;
+        }
+        // Default fallback
+        return window.location.origin;
     }
 
     // Setup authentication state listener
@@ -67,7 +76,7 @@ class AuthManager {
         } else if (isAdmin && !redirect) {
             returnUrl = '../admin/dashboard.html';
         } else {
-            returnUrl = urlParams.get('returnUrl') || '../dashboard.html';
+            returnUrl = urlParams.get('returnUrl') || '../chat.html';
         }
         
         // Check if we're on an auth page
@@ -161,20 +170,31 @@ class AuthManager {
 
         const formData = new FormData(event.target);
         const data = {
-            fullName: formData.get('fullName'),
-            email: formData.get('email'),
+            fullName: formData.get('fullName')?.trim(),
+            email: formData.get('email')?.trim(),
             password: formData.get('password'),
             confirmPassword: formData.get('confirmPassword'),
-            ageVerification: formData.get('ageVerification'),
-            termsAgreement: formData.get('termsAgreement')
+            ageVerification: formData.get('ageVerification') === 'on',
+            termsAgreement: formData.get('termsAgreement') === 'on'
         };
+
+        console.log('Form data collected:', data);
 
         // Validate form data
         if (!this.validateSignupData(data)) {
+            this.setLoading('signup', false);
+            return;
+        }
+
+        // Additional validation
+        if (!data.email || !data.password || !data.fullName) {
+            this.showError('সকল ক্ষেত্র পূরণ করুন।');
+            this.setLoading('signup', false);
             return;
         }
 
         this.setLoading('signup', true);
+        console.log('Attempting signup with data:', { email: data.email, fullName: data.fullName });
 
         try {
             const { data: authData, error } = await this.supabase.auth.signUp({
@@ -186,25 +206,40 @@ class AuthManager {
                         age_verified: true,
                         terms_accepted: true,
                         signup_date: new Date().toISOString()
-                    }
+                    },
+                    emailRedirectTo: this.getBaseUrl() + '/auth/callback.html'
                 }
             });
+
+            console.log('Signup response:', authData, error);
 
             if (error) {
                 throw error;
             }
 
-            // Show success message
-            this.showSuccess('অ্যাকাউন্ট তৈরি সফল হয়েছে! আপনার ইমেইল চেক করে নিশ্চিত করুন।');
-            
-            // Store user profile data
-            if (authData.user) {
-                await this.createUserProfile(authData.user, data.fullName);
+            if (authData.user && !authData.session) {
+                // User created but email confirmation required
+                this.showSuccess('অ্যাকাউন্ট তৈরি সফল হয়েছে! আপনার ইমেইল চেক করে লিংকে ক্লিক করুন।');
+            } else {
+                // User created and logged in immediately
+                this.showSuccess('অ্যাকাউন্ট তৈরি সফল হয়েছে! স্বাগতম!');
             }
+            
+            // Note: User profile is automatically created by database trigger
 
         } catch (error) {
             console.error('Signup error:', error);
-            this.showError(this.getErrorMessage(error));
+            
+            // More specific error handling
+            if (error.message.includes('User already registered')) {
+                this.showError('এই ইমেইল ইতিমধ্যে নিবন্ধিত। লগইন করার চেষ্টা করুন।');
+            } else if (error.message.includes('Invalid email')) {
+                this.showError('সঠিক ইমেইল ঠিকানা দিন।');
+            } else if (error.message.includes('Password')) {
+                this.showError('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
+            } else {
+                this.showError(this.getErrorMessage(error));
+            }
         } finally {
             this.setLoading('signup', false);
         }
@@ -279,7 +314,7 @@ class AuthManager {
 
         try {
             const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/auth/reset-password.html`
+                redirectTo: `${this.getBaseUrl()}/auth/reset-password.html`
             });
 
             if (error) {
@@ -312,7 +347,7 @@ class AuthManager {
             const { data, error } = await this.supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback.html`
+                    redirectTo: `${this.getBaseUrl()}/auth/callback.html`
                 }
             });
 
@@ -495,8 +530,8 @@ class AuthManager {
         try {
             const { data: { session } } = await this.supabase.auth.getSession();
             if (session) {
-                // User is already logged in, redirect to dashboard
-                const returnUrl = new URLSearchParams(window.location.search).get('returnUrl') || '../dashboard.html';
+                // User is already logged in, redirect to main page with chat
+                const returnUrl = new URLSearchParams(window.location.search).get('returnUrl') || '../chat.html';
                 window.location.href = returnUrl;
             }
         } catch (error) {
@@ -607,10 +642,28 @@ class AuthManager {
             'User already registered': 'এই ইমেইল ইতিমধ্যে নিবন্ধিত।',
             'Password should be at least 6 characters': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।',
             'Invalid email': 'সঠিক ইমেইল ঠিকানা দিন।',
-            'Network error': 'ইন্টারনেট সংযোগ চেক করুন।'
+            'Network error': 'ইন্টারনেট সংযোগ চেক করুন।',
+            'Signup is disabled': 'নতুন নিবন্ধন বর্তমানে বন্ধ আছে।',
+            'Email rate limit exceeded': 'অনেক চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',
+            'Invalid email format': 'সঠিক ইমেইল ঠিকানা দিন।'
         };
         
-        return errorMessages[error.message] || error.message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+        // Check for specific error patterns
+        const message = error.message || '';
+        if (message.includes('already registered') || message.includes('already been registered')) {
+            return 'এই ইমেইল ইতিমধ্যে নিবন্ধিত। লগইন করার চেষ্টা করুন।';
+        }
+        if (message.includes('Invalid email')) {
+            return 'সঠিক ইমেইল ঠিকানা দিন।';
+        }
+        if (message.includes('Password')) {
+            return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+        }
+        if (message.includes('rate limit')) {
+            return 'অনেক চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        }
+        
+        return errorMessages[message] || message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
     }
 }
 

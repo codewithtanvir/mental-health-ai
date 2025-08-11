@@ -81,3 +81,4 @@ coverage/
 # Local development
 .local/
 local/
+.vercel

@@ -2,8 +2,29 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewpo                            <a href="pages/posts/digital-wellness.html" class="font-semibold text-teal-600 hover:underline">আরও পড়ুন &rarr;</a>                           <a href="pages/posts/sleep-mental-health.html" class="font-semibold text-teal-600 hover:underline">আরও পড়ুন &rarr;</a>                           <a href="pages/posts/stress-management.html" class="font-semibold text-teal-600 hover:underline">আরও পড়ুন &rarr;</a>t" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মানসিক স্বাস্থ্য এআই - আপনার মানসিক শান্তির সঙ্গী</title>
+    
+    <!-- Meta Tags for SEO and Social Media -->
+    <meta name="description" content="বাংলাদেশের প্রথম AI-চালিত মানসিক স্বাস্থ্য প্ল্যাটফর্ম। নিরাপদ এবং ব্যক্তিগত পরিবেশে আপনার মনের কথা বলুন।">
+    <meta name="keywords" content="মানসিক স্বাস্থ্য, AI চ্যাটবট, বাংলাদেশ, মানসিক সহায়তা, চিকিৎসা">
+    <meta name="author" content="Mental Health AI Bangladesh">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="মানসিক স্বাস্থ্য এআই - আপনার মানসিক শান্তির সঙ্গী">
+    <meta property="og:description" content="বাংলাদেশের প্রথম AI-চালিত মানসিক স্বাস্থ্য প্ল্যাটফর্ম। নিরাপদ এবং ব্যক্তিগত পরিবেশে আপনার মনের কথা বলুন।">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1200&auto=format&fit=crop">
+    <meta property="og:url" content="https://mental-health-ai.vercel.app">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="মানসিক স্বাস্থ্য এআই">
+    <meta name="twitter:description" content="বাংলাদেশের প্রথম AI-চালিত মানসিক স্বাস্থ্য প্ল্যাটফর্ম">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1200&auto=format&fit=crop">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +33,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
@@ -22,39 +46,253 @@
     <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="text-2xl font-bold text-teal-600">মানসিক স্বাস্থ্য এআই</a>
+            
+            <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-6">
                 <a href="#about" class="text-gray-600 hover:text-teal-600 transition duration-300">আমাদের সম্পর্কে</a>
-                <a href="#chatbot" class="text-gray-600 hover:text-teal-600 transition duration-300">এআই চ্যাট</a>
+                <a href="#features" class="text-gray-600 hover:text-teal-600 transition duration-300">বৈশিষ্ট্য</a>
                 <a href="pages/blog.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ব্লগ</a>
                 <a href="pages/resources.html" class="text-gray-600 hover:text-teal-600 transition duration-300">রিসোর্স</a>
-                <a href="auth/login.html" class="text-gray-600 hover:text-teal-600 transition duration-300">লগইন</a>
             </div>
+            
+            <!-- User Actions -->
             <div class="flex items-center space-x-3">
-                <a href="auth/signup.html" class="bg-white text-teal-600 border border-teal-600 px-4 py-2 rounded-full hover:bg-teal-50 transition duration-300">সাইনআপ</a>
-                <a href="#chatbot" class="bg-teal-500 text-white px-5 py-2 rounded-full hover:bg-teal-600 transition duration-300 shadow hover:shadow-lg">কথা বলুন</a>
+                <!-- Authenticated User Menu (Hidden by default) -->
+                <div id="user-menu" class="hidden items-center space-x-4">
+                    <span id="user-greeting" class="text-gray-700 font-medium"></span>
+                    <a href="dashboard.html" class="bg-teal-500 text-white px-4 py-2 rounded-full hover:bg-teal-600 transition duration-300">ড্যাশবোর্ড</a>
+                    <a href="chat.html" class="bg-white text-teal-600 border border-teal-600 px-4 py-2 rounded-full hover:bg-teal-50 transition duration-300">চ্যাট</a>
+                    <button id="logout-btn" class="text-gray-600 hover:text-red-600 transition duration-300">লগআউট</button>
+                </div>
+                
+                <!-- Guest User Menu (Shown by default) -->
+                <div id="guest-menu" class="flex items-center space-x-3">
+                    <a href="auth/login.html" class="text-gray-600 hover:text-teal-600 transition duration-300">লগইন</a>
+                    <a href="auth/signup.html" class="bg-white text-teal-600 border border-teal-600 px-4 py-2 rounded-full hover:bg-teal-50 transition duration-300">সাইনআপ</a>
+                    <a href="chat.html" class="bg-teal-500 text-white px-5 py-2 rounded-full hover:bg-teal-600 transition duration-300 shadow hover:shadow-lg">কথা বলুন</a>
+                </div>
             </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-teal-600 transition duration-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </nav>
+        
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-6 py-4 space-y-3">
+                <a href="#about" class="block text-gray-600 hover:text-teal-600 transition duration-300">আমাদের সম্পর্কে</a>
+                <a href="#features" class="block text-gray-600 hover:text-teal-600 transition duration-300">বৈশিষ্ট্য</a>
+                <a href="pages/blog.html" class="block text-gray-600 hover:text-teal-600 transition duration-300">ব্লগ</a>
+                <a href="pages/resources.html" class="block text-gray-600 hover:text-teal-600 transition duration-300">রিসোর্স</a>
+                <a href="chat.html" class="block text-gray-600 hover:text-teal-600 transition duration-300">এআই চ্যাট</a>
+            </div>
+        </div>
     </header>
 
     <!-- Main Content -->
     <main>
         <!-- Hero Section -->
-        <section class="hero-bg text-white relative">
-            <div class="absolute inset-0 bg-black opacity-60"></div>
-            <div class="container mx-auto px-6 py-32 text-center relative z-10">
-                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-4">আপনার মানসিক শান্তির সঙ্গী</h1>
-                <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto">এখানে আপনি আপনার মনের কথা খুলে বলতে পারেন। আমাদের এআই চ্যাটবট সর্বদা আপনার পাশে আছে।</p>
-                <a href="#chatbot" class="bg-white text-teal-600 font-bold px-8 py-4 rounded-full hover:bg-gray-200 transition duration-300 text-lg shadow-lg hover:shadow-xl">এখনি শুরু করুন</a>
+        <section class="hero-bg text-white relative min-h-screen flex items-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-teal-900/80 via-blue-900/70 to-purple-900/60"></div>
+            <div class="container mx-auto px-6 py-20 text-center relative z-10">
+                
+                <!-- Welcome Message for Authenticated Users -->
+                <div id="user-hero" class="hidden">
+                    <div class="mb-8">
+                        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-4">
+                            আবার স্বাগতম, <span id="user-name-hero" class="text-teal-300"></span>!
+                        </h1>
+                        <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
+                            আজ আপনার মন কেমন? আমাদের এআই সহায়ক আপনার পাশে আছে।
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="chat.html" class="bg-teal-500 text-white font-bold px-8 py-4 rounded-full hover:bg-teal-600 transition duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                            💬 এআই এর সাথে কথা বলুন
+                        </a>
+                        <a href="dashboard.html" class="bg-white/20 backdrop-blur-sm text-white font-bold px-8 py-4 rounded-full hover:bg-white/30 transition duration-300 text-lg border border-white/30">
+                            📊 ড্যাশবোর্ড দেখুন
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Welcome Message for Guest Users -->
+                <div id="guest-hero">
+                    <div class="mb-12">
+                        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">
+                            আপনার মানসিক শান্তির সঙ্গী
+                        </h1>
+                        <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto leading-relaxed">
+                            বাংলাদেশের প্রথম AI-চালিত মানসিক স্বাস্থ্য প্ল্যাটফর্ম। 
+                            নিরাপদ এবং ব্যক্তিগত পরিবেশে আপনার মনের কথা বলুন।
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                        <a href="chat.html" class="bg-white text-teal-600 font-bold px-8 py-4 rounded-full hover:bg-gray-100 transition duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                            🚀 এখনি শুরু করুন
+                        </a>
+                        <a href="auth/signup.html" class="bg-teal-500 text-white font-bold px-8 py-4 rounded-full hover:bg-teal-600 transition duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                            📝 অ্যাকাউন্ট তৈরি করুন
+                        </a>
+                    </div>
+
+                    <!-- Trust Indicators -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                            <div class="text-3xl mb-3">🔒</div>
+                            <h3 class="text-xl font-semibold mb-2">সম্পূর্ণ নিরাপদ</h3>
+                            <p class="text-sm opacity-90">আপনার তথ্য সম্পূর্ণ গোপনীয় এবং সুরক্ষিত</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                            <div class="text-3xl mb-3">🤖</div>
+                            <h3 class="text-xl font-semibold mb-2">AI সহায়তা</h3>
+                            <p class="text-sm opacity-90">উন্নত AI প্রযুক্তি দিয়ে ব্যক্তিগত সহায়তা</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                            <div class="text-3xl mb-3">🌍</div>
+                            <h3 class="text-xl font-semibold mb-2">বাংলা ভাষায়</h3>
+                            <p class="text-sm opacity-90">আপনার মাতৃভাষায় মানসিক স্বাস্থ্য সেবা</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">আমাদের বৈশিষ্ট্যসমূহ</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto text-lg">আধুনিক প্রযুক্তি ও বিশেষজ্ঞদের জ্ঞানের সমন্বয়ে তৈরি</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1: AI Chat -->
+                    <div class="bg-gradient-to-br from-teal-50 to-blue-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">স্মার্ট AI চ্যাটবট</h3>
+                        <p class="text-gray-600 mb-6">Google Gemini AI দিয়ে তৈরি, যা আপনার অনুভূতি বুঝে উপযুক্ত পরামর্শ দেয়</p>
+                        <a href="chat.html" class="inline-flex items-center text-teal-600 font-semibold hover:text-teal-700 transition-colors">
+                            শুরু করুন <span class="ml-2">→</span>
+                        </a>
+                    </div>
+
+                    <!-- Feature 2: Privacy -->
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">🔒</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">সম্পূর্ণ গোপনীয়তা</h3>
+                        <p class="text-gray-600 mb-6">আপনার সব তথ্য এনক্রিপ্টেড এবং সুরক্ষিত। কেউ আপনার ব্যক্তিগত কথা জানতে পারবে না</p>
+                        <span class="inline-flex items-center text-purple-600 font-semibold">
+                            সুরক্ষিত <span class="ml-2">🛡️</span>
+                        </span>
+                    </div>
+
+                    <!-- Feature 3: Bengali Support -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">🇧🇩</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">বাংলা ভাষায়</h3>
+                        <p class="text-gray-600 mb-6">আপনার মাতৃভাষায় মানসিক স্বাস্থ্য সেবা। কোন ভাষাগত বাধা নেই</p>
+                        <span class="inline-flex items-center text-green-600 font-semibold">
+                            বাংলায় কথা বলুন <span class="ml-2">💬</span>
+                        </span>
+                    </div>
+
+                    <!-- Feature 4: 24/7 Available -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">⏰</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">২৪/৭ উপলব্ধ</h3>
+                        <p class="text-gray-600 mb-6">যেকোনো সময় সহায়তা পাবেন। রাত বা দিন, আমরা সবসময় আপনার পাশে</p>
+                        <span class="inline-flex items-center text-orange-600 font-semibold">
+                            সর্বদা উপলব্ধ <span class="ml-2">🌟</span>
+                        </span>
+                    </div>
+
+                    <!-- Feature 5: Professional Resources -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">📚</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">বিশেষজ্ঞ পরামর্শ</h3>
+                        <p class="text-gray-600 mb-6">মানসিক স্বাস্থ্য বিশেষজ্ঞদের তৈরি আর্টিকেল ও রিসোর্স</p>
+                        <a href="pages/resources.html" class="inline-flex items-center text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
+                            পড়ুন <span class="ml-2">→</span>
+                        </a>
+                    </div>
+
+                    <!-- Feature 6: Community -->
+                    <div class="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="text-4xl mb-4">👥</div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">সহায়ক কমিউনিটি</h3>
+                        <p class="text-gray-600 mb-6">একই পথের অন্যদের সাথে অভিজ্ঞতা শেয়ার করুন এবং সাহায্য নিন</p>
+                        <a href="pages/blog.html" class="inline-flex items-center text-rose-600 font-semibold hover:text-rose-700 transition-colors">
+                            যোগ দিন <span class="ml-2">→</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- About Section -->
         <section id="about" class="py-20 bg-white">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold mb-6">আমাদের লক্ষ্য</h2>
-                <p class="max-w-3xl mx-auto text-gray-600 leading-relaxed">
-                    'মানসিক স্বাস্থ্য এআই' একটি উদ্যোগ যা বাংলাদেশের মানুষের জন্য মানসিক স্বাস্থ্যের যত্ন সহজলভ্য করার লক্ষ্যে তৈরি। আমরা বিশ্বাস করি, প্রযুক্তির সঠিক ব্যবহারের মাধ্যমে মানসিক স্বাস্থ্যসেবাকে আরও ব্যক্তিগত, নিরাপদ এবং কার্যকর করা সম্ভব। আমাদের এআই-চালিত প্ল্যাটফর্মটি আপনাকে আপনার অনুভূতিগুলো বুঝতে এবং মানসিক চাপ মোকাবেলায় সহায়তা করার জন্য ডিজাইন করা হয়েছে।
-                </p>
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <div class="mb-6">
+                            <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?q=80&w=2069&auto=format&fit=crop" alt="Mental Health Care" class="w-64 h-64 md:w-80 md:h-80 object-cover rounded-full mx-auto shadow-lg">
+                        </div>
+                        <h2 class="text-3xl font-bold mb-6">আমাদের লক্ষ্য</h2>
+                        <p class="text-gray-600 leading-relaxed text-lg">
+                            'মানসিক স্বাস্থ্য এআই' একটি উদ্যোগ যা বাংলাদেশের মানুষের জন্য মানসিক স্বাস্থ্যের যত্ন সহজলভ্য করার লক্ষ্যে তৈরি। আমরা বিশ্বাস করি, প্রযুক্তির সঠিক ব্যবহারের মাধ্যমে মানসিক স্বাস্থ্যসেবাকে আরও ব্যক্তিগত, নিরাপদ এবং কার্যকর করা সম্ভব। আমাদের এআই-চালিত প্ল্যাটফর্মটি আপনাকে আপনার অনুভূতিগুলো বুঝতে এবং মানসিক চাপ মোকাবেলায় সহায়তা করার জন্য ডিজাইন করা হয়েছে।
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mental Health Awareness Gallery -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">মানসিক স্বাস্থ্য সচেতনতা</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">মানসিক স্বাস্থ্যের গুরুত্ব বোঝার জন্য কিছু অনুপ্রেরণামূলক চিত্র</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=500&auto=format&fit=crop" alt="Self Care" class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 text-white">
+                                <p class="font-semibold">স্ব-যত্ন</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=500&auto=format&fit=crop" alt="Mindfulness" class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 text-white">
+                                <p class="font-semibold">মাইন্ডফুলনেস</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=500&auto=format&fit=crop" alt="Community Support" class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 text-white">
+                                <p class="font-semibold">সমর্থন</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1544027993-37dbfe43562a?q=80&w=500&auto=format&fit=crop" alt="Mental Wellness" class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 text-white">
+                                <p class="font-semibold">সুস্থতা</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -64,7 +302,82 @@
                 <h2 class="text-3xl font-bold text-center mb-2">✨ এআই চ্যাটবটের সাথে কথা বলুন</h2>
                 <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">আপনার মনে যা আছে, তা এখানে লিখতে পারেন। আমাদের জেমিনি এআই আপনাকে সাহায্য করার জন্য প্রস্তুত। এটি পেশাদার পরামর্শের বিকল্প নয়।</p>
                 
-                <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl">
+                <!-- Login Required Message (shown when not authenticated) -->
+                <div id="chat-login-required" class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-8 text-center">
+                    <div class="mb-6">
+                        <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">🔒</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">লগইন প্রয়োজন</h3>
+                        <p class="text-gray-600 mb-6">এআই চ্যাটবট ব্যবহার করতে আপনাকে লগইন করতে হবে। এটি আপনার কথোপকথনের ইতিহাস সংরক্ষণ এবং ব্যক্তিগত সহায়তা প্রদানের জন্য প্রয়োজন।</p>
+                        
+                        <div class="space-y-3">
+                            <a href="auth/login.html" class="block w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition duration-300 font-semibold">
+                                লগইন করুন
+                            </a>
+                            <a href="auth/signup.html" class="block w-full border-2 border-teal-600 text-teal-600 py-3 px-6 rounded-lg hover:bg-teal-50 transition duration-300 font-semibold">
+                                নতুন অ্যাকাউন্ট তৈরি করুন
+                            </a>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800">
+                                <span class="font-semibold">কেন লগইন প্রয়োজন?</span><br>
+                                • আপনার কথোপকথন সংরক্ষণ করতে<br>
+                                • ব্যক্তিগত সহায়তা প্রদান করতে<br>
+                                • আপনার গোপনীয়তা রক্ষা করতে
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Access to Chat Page (shown when authenticated) -->
+                <div id="chat-quick-access" class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-8 text-center hidden">
+                    <div class="mb-6">
+                        <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-3xl">🤖</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">AI চ্যাট প্রস্তুত!</h3>
+                        <p class="text-gray-600 mb-6">আমাদের AI চ্যাটবটের সাথে কথা বলার জন্য ডেডিকেটেড চ্যাট পেজে যান।</p>
+                        
+                        <div class="space-y-3">
+                            <a href="chat.html" class="block w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition duration-300 font-semibold">
+                                🚀 চ্যাট পেজে যান
+                            </a>
+                            <a href="dashboard.html" class="block w-full border-2 border-teal-600 text-teal-600 py-3 px-6 rounded-lg hover:bg-teal-50 transition duration-300 font-semibold">
+                                📊 ড্যাশবোর্ড দেখুন
+                            </a>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                            <p class="text-sm text-green-800">
+                                <span class="font-semibold">নতুন ফিচার!</span><br>
+                                • পূর্ণ স্ক্রীন চ্যাট অভিজ্ঞতা<br>
+                                • দ্রুত প্রশ্নের বাটন<br>
+                                • উন্নত ইউআই ডিজাইন
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Interface (shown when authenticated) -->
+                <div id="chat-interface" class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl hidden">
+                    <div class="flex items-center justify-between p-4 border-b bg-teal-50 rounded-t-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">🤖</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">জেমিনি এআই</h4>
+                                <p class="text-sm text-gray-600">মানসিক স্বাস্থ্য সহায়ক</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="user-name" class="text-sm text-gray-600"></span>
+                            <button onclick="logout()" class="text-red-600 hover:text-red-800 text-sm">লগআউট</button>
+                        </div>
+                    </div>
+                    
                     <div id="chat-display" class="p-6 h-96 overflow-y-auto flex flex-col space-y-4">
                         <div class="chat-bubble-ai p-4 rounded-lg max-w-md">
                             <p class="text-sm">হ্যালো! আমি জেমিনি, আপনার মানসিক স্বাস্থ্য সহকারী। আজ আপনার কেমন লাগছে? আপনি নির্দ্বিধায় আপনার মনের কথা বলতে পারেন।</p>
@@ -125,17 +438,26 @@
             <div class="container mx-auto px-6">
                 <h2 class="text-3xl font-bold text-center mb-12">জরুরী সহায়ক রিসোর্স</h2>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300">
+                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                        <div class="mb-4">
+                            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?q=80&w=2069&auto=format&fit=crop" alt="NASIB Mental Health Support" class="w-full h-32 object-cover rounded-lg">
+                        </div>
                         <h3 class="font-bold text-xl mb-2">নাসিব (NASIB)</h3>
                         <p class="text-gray-600 mb-4">ন্যাশনাল ইনস্টিটিউট অফ মেন্টাল হেলথ (NIMH) এর একটি টেলি-কাউন্সেলিং সেবা।</p>
                         <a href="pages/resources.html" class="text-teal-600 font-semibold hover:underline">আরও জানুন &rarr;</a>
                     </div>
-                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300">
+                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                        <div class="mb-4">
+                            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=2070&auto=format&fit=crop" alt="Kan Pete Roi Helpline" class="w-full h-32 object-cover rounded-lg">
+                        </div>
                         <h3 class="font-bold text-xl mb-2">কান পেতে রই</h3>
                         <p class="text-gray-600 mb-4">একটি সুইসাইড প্রিভেনশন ইমোশনাল সাপোর্ট হেল্পলাইন।</p>
                         <a href="pages/resources.html" class="text-teal-600 font-semibold hover:underline">আরও জানুন &rarr;</a>
                     </div>
-                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300">
+                    <div class="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                        <div class="mb-4">
+                            <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?q=80&w=2127&auto=format&fit=crop" alt="Moner Bondhu Mental Health" class="w-full h-32 object-cover rounded-lg">
+                        </div>
                         <h3 class="font-bold text-xl mb-2">মনের বন্ধু</h3>
                         <p class="text-gray-600 mb-4">অনলাইন এবং অফলাইনে মানসিক স্বাস্থ্য সেবা প্রদানকারী একটি বিশ্বস্ত প্রতিষ্ঠান।</p>
                         <a href="pages/resources.html" class="text-teal-600 font-semibold hover:underline">আরও জানুন &rarr;</a>
@@ -158,6 +480,97 @@
     </footer>
 
     <!-- JavaScript -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    
+    <script>
+        // Homepage-specific JavaScript
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize authentication state
+            const authManager = new AuthManager();
+            await authManager.initialize();
+            
+            // Update UI based on authentication state
+            updateUIForUser(authManager.currentUser);
+            
+            // Mobile menu functionality
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    await authManager.logout();
+                    updateUIForUser(null);
+                });
+            }
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+        
+        function updateUIForUser(user) {
+            const userMenu = document.getElementById('user-menu');
+            const guestMenu = document.getElementById('guest-menu');
+            const userHero = document.getElementById('user-hero');
+            const guestHero = document.getElementById('guest-hero');
+            const userGreeting = document.getElementById('user-greeting');
+            const userNameHero = document.getElementById('user-name-hero');
+            
+            if (user) {
+                // User is logged in
+                const userName = user.user_metadata?.full_name || 
+                                user.email?.split('@')[0] || 'ব্যবহারকারী';
+                
+                // Show user menu, hide guest menu
+                if (userMenu) {
+                    userMenu.classList.remove('hidden');
+                    userMenu.classList.add('flex');
+                }
+                if (guestMenu) guestMenu.classList.add('hidden');
+                
+                // Show user hero, hide guest hero
+                if (userHero) userHero.classList.remove('hidden');
+                if (guestHero) guestHero.classList.add('hidden');
+                
+                // Update user name displays
+                if (userGreeting) userGreeting.textContent = `স্বাগতম, ${userName}`;
+                if (userNameHero) userNameHero.textContent = userName;
+                
+                console.log('✅ User authenticated:', userName);
+            } else {
+                // User is not logged in
+                
+                // Show guest menu, hide user menu
+                if (guestMenu) guestMenu.classList.remove('hidden');
+                if (userMenu) userMenu.classList.add('hidden');
+                
+                // Show guest hero, hide user hero
+                if (guestHero) guestHero.classList.remove('hidden');
+                if (userHero) userHero.classList.add('hidden');
+                
+                console.log('ℹ️ User not authenticated');
+            }
+        }
+    </script>
 </body>
 </html>

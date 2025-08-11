@@ -1,21 +1,111 @@
 // Mental Health AI - Main JavaScript
 class MentalHealthApp {
     constructor() {
-        this.API_KEY = this.getAPIKey();
-        this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${this.API_KEY}`;
+        this.API_KEY = null;
+        this.API_URL = '';
         this.chatHistory = [];
         this.isLoading = false;
+        this.currentUser = null;
+        this.supabase = null;
         
+        // Initialize async
+        this.initializeAsync();
+    }
+
+    // Async initialization
+    async initializeAsync() {
+        try {
+            // Initialize config manager first
+            await window.configManager.initialize();
+            
+            // Get API key asynchronously
+            this.API_KEY = await this.getAPIKey();
+            if (this.API_KEY) {
+                this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${this.API_KEY}`;
+            }
+        } catch (error) {
+            console.error('Failed to get API key:', error);
+        }
+        
+        // Continue with regular initialization
+        this.initializeSupabase();
         this.initializeElements();
         this.bindEvents();
         this.initializeApp();
     }
 
-    // Get API key from environment or config
-    getAPIKey() {
-        // In production, this should come from environment variables
-        // For development, you can set it here temporarily
-        return process.env.GEMINI_API_KEY || "";
+    // Initialize Supabase client
+    initializeSupabase() {
+        try {
+            // Use actual Supabase credentials
+            const SUPABASE_URL = 'https://brecotrpmeiwktcffdws.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI';
+            
+            if (typeof window.supabase !== 'undefined') {
+                this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                this.checkAuthStatus();
+                console.log('Supabase client initialized successfully');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+        }
+    }
+
+    // Check if user is authenticated
+    async checkAuthStatus() {
+        if (!this.supabase) return;
+
+        try {
+            const { data: { user } } = await this.supabase.auth.getUser();
+            this.currentUser = user;
+            this.updateChatInterface();
+            
+            // Listen for auth state changes
+            this.supabase.auth.onAuthStateChange((event, session) => {
+                this.currentUser = session?.user || null;
+                this.updateChatInterface();
+            });
+        } catch (error) {
+            console.error('Auth check error:', error);
+        }
+    }
+
+    // Update chat interface based on authentication status
+    updateChatInterface() {
+        const loginRequired = document.getElementById('chat-login-required');
+        const chatInterface = document.getElementById('chat-interface');
+        const chatQuickAccess = document.getElementById('chat-quick-access');
+        const userNameEl = document.getElementById('user-name');
+
+        if (this.currentUser) {
+            // User is logged in - show quick access to chat page
+            if (loginRequired) loginRequired.classList.add('hidden');
+            if (chatQuickAccess) chatQuickAccess.classList.remove('hidden');
+            if (chatInterface) chatInterface.classList.add('hidden'); // Hide embedded chat
+            
+            // Display user name
+            if (userNameEl) {
+                const userName = this.currentUser.user_metadata?.full_name || 
+                                this.currentUser.email?.split('@')[0] || 'ব্যবহারকারী';
+                userNameEl.textContent = userName;
+            }
+            
+        } else {
+            // User is not logged in - show login prompt
+            if (loginRequired) loginRequired.classList.remove('hidden');
+            if (chatQuickAccess) chatQuickAccess.classList.add('hidden');
+            if (chatInterface) chatInterface.classList.add('hidden');
+        }
+    }
+
+    // Get API key from configuration manager
+    async getAPIKey() {
+        try {
+            return await window.configManager.getAPIKey();
+        } catch (error) {
+            console.error('Failed to get API key:', error);
+            return '';
+        }
     }
 
     // Initialize DOM elements
@@ -210,8 +300,16 @@ class MentalHealthApp {
 
     // Call Gemini API
     async callGeminiAPI(prompt, history = []) {
+        // Ensure we have an API key
         if (!this.API_KEY) {
-            throw new Error('API Key not configured');
+            this.API_KEY = await this.getAPIKey();
+            if (this.API_KEY) {
+                this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${this.API_KEY}`;
+            }
+        }
+        
+        if (!this.API_KEY || this.API_KEY.trim() === '') {
+            throw new Error('API key not configured. Please add GEMINI_API_KEY to your .env file.');
         }
 
         const systemPrompt = `You are a friendly and empathetic mental health assistant for Bangladeshi people, especially students. Your name is Gemini (জেমিনি). You should:
@@ -284,7 +382,7 @@ Current user message: ${prompt}`;
 
     // Handle sending a message
     async handleSendMessage() {
-        if (this.isLoading) return;
+        if (this.isLoading || !this.currentUser) return;
 
         const userMessage = this.chatInput.value.trim();
         if (!userMessage) return;
@@ -317,6 +415,9 @@ Current user message: ${prompt}`;
             // Add to chat history
             this.chatHistory.push({ role: "model", parts: [{ text: aiMessage }] });
             
+            // Save to database
+            await this.saveChatMessage(userMessage, aiMessage);
+            
             // Limit chat history to last 10 exchanges to avoid token limits
             if (this.chatHistory.length > 20) {
                 this.chatHistory = this.chatHistory.slice(-20);
@@ -331,6 +432,67 @@ Current user message: ${prompt}`;
             this.hideLoader(this.chatLoader, this.sendBtnText);
             this.sendBtn.disabled = false;
             this.chatInput.focus();
+        }
+    }
+
+    // Save chat message to database
+    async saveChatMessage(userMessage, aiResponse) {
+        if (!this.supabase || !this.currentUser) return;
+
+        try {
+            const { error } = await this.supabase
+                .from('chat_messages')
+                .insert([
+                    {
+                        user_id: this.currentUser.id,
+                        message: userMessage,
+                        response: aiResponse,
+                        session_id: this.generateSessionId(),
+                        created_at: new Date().toISOString()
+                    }
+                ]);
+
+            if (error) {
+                console.error('Error saving chat message:', error);
+            }
+        } catch (error) {
+            console.error('Database save error:', error);
+        }
+    }
+
+    // Generate or get session ID
+    generateSessionId() {
+        if (!this.sessionId) {
+            this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+        return this.sessionId;
+    }
+
+    // Logout functionality
+    async logout() {
+        if (!this.supabase) return;
+
+        try {
+            const { error } = await this.supabase.auth.signOut();
+            if (error) {
+                console.error('Logout error:', error);
+            } else {
+                this.currentUser = null;
+                this.sessionId = null;
+                this.chatHistory = [];
+                this.updateChatInterface(false);
+                
+                // Clear chat messages
+                const chatMessages = document.getElementById('chat-messages');
+                if (chatMessages) {
+                    chatMessages.innerHTML = '';
+                }
+                
+                // Show success message
+                alert('সফলভাবে লগআউট হয়েছে');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
         }
     }
 
@@ -368,6 +530,16 @@ Current user message: ${prompt}`;
         link.click();
         
         URL.revokeObjectURL(url);
+    }
+
+    // Method to reset API key (for troubleshooting)
+    async resetAPIKey() {
+        localStorage.removeItem('gemini_api_key');
+        this.API_KEY = await this.getAPIKey();
+        if (this.API_KEY) {
+            this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${this.API_KEY}`;
+        }
+        return this.API_KEY;
     }
 }
 
@@ -459,6 +631,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make app globally accessible for debugging
     window.mentalHealthApp = app;
 });
+
+// Global logout function for onclick handler
+function logout() {
+    if (window.mentalHealthApp) {
+        window.mentalHealthApp.logout();
+    }
+}
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
