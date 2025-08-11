@@ -197,8 +197,10 @@
                     
                     this.setupEventListeners();
                     
-                    // Check if already logged in as admin
-                    await this.checkExistingAdminSession();
+                    // Check if already logged in as admin (only if Supabase is ready)
+                    if (this.supabase) {
+                        await this.checkExistingAdminSession();
+                    }
                     
                     console.log('🎯 Admin login system ready!');
                     
@@ -237,28 +239,73 @@
 
             async checkExistingAdminSession() {
                 try {
-                    const { data: { user } } = await this.supabase.auth.getUser();
+                    // Ensure Supabase is initialized
+                    if (!this.supabase) {
+                        console.log('⚠️ Supabase not initialized, skipping session check');
+                        return;
+                    }
+
+                    console.log('🔍 Checking existing admin session...');
+                    
+                    // Add timeout to prevent hanging
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Session check timeout')), 5000)
+                    );
+                    
+                    const sessionPromise = this.supabase.auth.getUser();
+                    
+                    const { data: { user } } = await Promise.race([sessionPromise, timeoutPromise]);
                     
                     if (user) {
-                        console.log('Existing user found, checking admin status...');
+                        console.log('👤 Existing user found:', user.email);
+                        console.log('🔍 Checking admin status...');
+                        
                         const isAdmin = await this.verifyAdminRole(user.id);
                         
                         if (isAdmin) {
-                            console.log('User is already admin, redirecting...');
-                            window.location.href = 'dashboard.html';
+                            console.log('✅ User is already admin, redirecting to dashboard...');
+                            this.showAlert('success', 'ইতিমধ্যে লগইন আছেন। অ্যাডমিন ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...');
+                            setTimeout(() => {
+                                window.location.href = 'dashboard.html';
+                            }, 1000);
                             return;
                         } else {
-                            // User is logged in but not admin, logout
+                            console.log('❌ User exists but not admin, signing out...');
                             await this.supabase.auth.signOut();
                         }
+                    } else {
+                        console.log('ℹ️ No existing user session found');
                     }
                 } catch (error) {
-                    console.error('Session check error:', error);
+                    console.error('❌ Session check error:', error);
+                    
+                    // Don't show error to user for session check failures
+                    // Just log and continue with normal login flow
+                    if (error.message.includes('timeout')) {
+                        console.log('⏰ Session check timed out, continuing with login');
+                    } else if (error.message.includes('getUser')) {
+                        console.log('🔧 Supabase client issue, continuing with login');
+                    }
                 }
             }
 
             async handleAdminLogin(event) {
                 event.preventDefault();
+                
+                // Ensure Supabase is initialized before attempting login
+                if (!this.supabase) {
+                    console.error('❌ Supabase not initialized for login');
+                    this.showAlert('error', 'সিস্টেম প্রস্তুত নয়। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+                    
+                    // Show reload button
+                    setTimeout(() => {
+                        const alertEl = document.getElementById('alert');
+                        if (alertEl && !alertEl.classList.contains('hidden')) {
+                            alertEl.innerHTML += '<br><button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">পেজ রিফ্রেশ করুন</button>';
+                        }
+                    }, 1000);
+                    return;
+                }
                 
                 const formData = new FormData(event.target);
                 const email = formData.get('email');
@@ -330,19 +377,40 @@
 
             async verifyAdminRole(userId) {
                 try {
+                    // Ensure Supabase is ready
+                    if (!this.supabase) {
+                        console.error('❌ Cannot verify admin role: Supabase not initialized');
+                        return false;
+                    }
+
                     console.log('🔍 Verifying admin role for:', userId);
                     
-                    const { data, error } = await this.supabase
+                    // Add timeout for database query
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Admin role check timeout')), 10000)
+                    );
+                    
+                    const queryPromise = this.supabase
                         .from('user_profiles')
                         .select('role')
                         .eq('id', userId)
                         .single();
 
+                    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
                     console.log('📊 Role check result:', { data, error });
 
-                    return !error && data?.role === 'admin';
+                    if (error) {
+                        console.error('❌ Database error checking admin role:', error);
+                        return false;
+                    }
+
+                    const isAdmin = data?.role === 'admin';
+                    console.log('👑 User admin status:', isAdmin, '| Role value:', data?.role);
+                    
+                    return isAdmin;
                 } catch (error) {
-                    console.error('Role verification error:', error);
+                    console.error('❌ Role verification error:', error);
                     return false;
                 }
             }
@@ -429,6 +497,55 @@
         }
 
         new AdminLogin();
+
+        // Global error handler for uncaught Supabase errors
+        window.addEventListener('error', function(event) {
+            if (event.error && event.error.message && event.error.message.includes('getUser')) {
+                console.error('🚨 Global Supabase error caught:', event.error);
+                
+                // Show user-friendly error
+                const alertEl = document.getElementById('alert');
+                if (alertEl) {
+                    alertEl.className = 'mb-4 p-3 rounded-md bg-red-100 border border-red-400 text-red-700';
+                    alertEl.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">⚠️</span>
+                            <span>সিস্টেম ইনিশিয়ালাইজেশনে সমস্যা। পেজ রিফ্রেশ করুন।</span>
+                        </div>
+                        <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">পেজ রিফ্রেশ করুন</button>
+                    `;
+                    alertEl.classList.remove('hidden');
+                }
+                
+                // Prevent the error from propagating
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Global promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            if (event.reason && event.reason.message && event.reason.message.includes('getUser')) {
+                console.error('🚨 Global promise rejection caught:', event.reason);
+                
+                // Show user-friendly error
+                const alertEl = document.getElementById('alert');
+                if (alertEl) {
+                    alertEl.className = 'mb-4 p-3 rounded-md bg-red-100 border border-red-400 text-red-700';
+                    alertEl.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">⚠️</span>
+                            <span>ডাটাবেস সংযোগে সমস্যা। পেজ রিফ্রেশ করুন।</span>
+                        </div>
+                        <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">পেজ রিফ্রেশ করুন</button>
+                    `;
+                    alertEl.classList.remove('hidden');
+                }
+                
+                // Prevent the error from propagating
+                event.preventDefault();
+            }
+        });
     </script>
 </body>
 </html>
