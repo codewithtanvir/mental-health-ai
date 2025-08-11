@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>প্রশান্তিদায়ক শব্দ - মানসিক স্বাস্থ্য এআই</title>
+
+    <!-- Meta Tags -->
+    <meta
+      name="description"
+      content="মানসিক শান্তির জন্য প্রাকৃতিক এবং প্রশান্তিদায়ক শব্দ"
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css" />
+
+    <style>
+      .sound-player {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .play-button {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 0 auto;
+      }
+
+      .play-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      .play-button.playing {
+        background: rgba(255, 255, 255, 0.4);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+      }
+
+      .volume-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        outline: none;
+      }
+
+      .volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .sound-category {
+        transition: all 0.3s ease;
+      }
+
+      .sound-category:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .timer-display {
+        font-family: "Courier New", monospace;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .ambient-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 2s ease;
+      }
+
+      .ambient-background.active {
+        opacity: 0.1;
+      }
+
+      .visualizer {
+        height: 100px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 2px;
+        margin: 1rem 0;
+      }
+
+      .visualizer-bar {
+        width: 4px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 2px;
+        transition: height 0.1s ease;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- Ambient Background -->
+    <div id="ambient-background" class="ambient-background">
+      <div
+        class="w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500"
+      ></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+      <nav
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <a href="../index.html" class="text-2xl font-bold text-teal-600"
+          >মানসিক স্বাস্থ্য এআই</a
+        >
+
+        <!-- Navigation -->
+        <div class="hidden md:flex items-center space-x-6">
+          <a
+            href="../index.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >হোম</a
+          >
+          <a
+            href="../chat.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >চ্যাট</a
+          >
+          <a
+            href="exercises.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >ব্যায়াম</a
+          >
+          <a href="relaxing-sounds.html" class="text-teal-600 font-semibold"
+            >প্রশান্তিদায়ক শব্দ</a
+          >
+          <a
+            href="blog.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >ব্লগ</a
+          >
+          <a
+            href="resources.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >রিসোর্স</a
+          >
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-btn"
+          class="md:hidden text-gray-600 hover:text-teal-600"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+      <!-- Hero Section -->
+      <section class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          প্রশান্তিদায়ক শব্দ
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          প্রাকৃতিক এবং কৃত্রিম শব্দের মাধ্যমে মানসিক শান্তি এবং একাগ্রতা বৃদ্ধি
+          করুন
+        </p>
+      </section>
+
+      <!-- Main Player -->
+      <section class="mb-16">
+        <div class="max-w-2xl mx-auto">
+          <div id="main-player" class="sound-player text-center">
+            <h3 id="current-track" class="text-2xl font-semibold mb-4">
+              কোনো ট্র্যাক নির্বাচিত নেই
+            </h3>
+
+            <!-- Visualizer -->
+            <div id="visualizer" class="visualizer">
+              <!-- Visualizer bars will be generated here -->
+            </div>
+
+            <!-- Play Button -->
+            <div class="play-button" id="main-play-btn">
+              <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+
+            <!-- Controls -->
+            <div class="mt-6 space-y-4">
+              <!-- Volume -->
+              <div class="flex items-center justify-center space-x-4">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.82L4.09 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.09l4.293-3.82a1 1 0 011.6.896zM12 6.707a1 1 0 011.414 0 5.001 5.001 0 010 7.071 1 1 0 01-1.414-1.414 3.001 3.001 0 000-4.243A1 1 0 0112 6.707z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <input
+                  type="range"
+                  id="volume-slider"
+                  class="volume-slider w-32"
+                  min="0"
+                  max="100"
+                  value="50"
+                />
+                <span id="volume-display" class="text-sm">50%</span>
+              </div>
+
+              <!-- Timer -->
+              <div class="flex items-center justify-center space-x-4">
+                <span class="timer-display" id="timer-display">00:00</span>
+                <button
+                  id="timer-btn"
+                  class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition duration-300"
+                >
+                  টাইমার সেট করুন
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sound Categories -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          শব্দের ক্যাটেগরি
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Nature Sounds -->
+          <div
+            class="sound-category bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6 border border-green-200"
+          >
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-3">🌿</div>
+              <h3 class="text-xl font-semibold text-green-800">
+                প্রাকৃতিক শব্দ
+              </h3>
+              <p class="text-green-600 text-sm mt-2">
+                প্রকৃতির কোলে শান্তি পান
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200"
+                data-sound="rain"
+                data-title="বৃষ্টির শব্দ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-green-700">🌧️ বৃষ্টির শব্দ</span>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200"
+                data-sound="forest"
+                data-title="বনের শব্দ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-green-700">🌲 বনের শব্দ</span>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200"
+                data-sound="ocean"
+                data-title="সমুদ্রের ঢেউ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-green-700">🌊 সমুদ্রের ঢেউ</span>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200"
+                data-sound="thunder"
+                data-title="দূরের বজ্রপাত"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-green-700">⚡ দূরের বজ্রপাত</span>
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ambient Sounds -->
+          <div
+            class="sound-category bg-gradient-to-br from-purple-50 to-indigo-100 rounded-xl p-6 border border-purple-200"
+          >
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-3">🎵</div>
+              <h3 class="text-xl font-semibold text-purple-800">
+                অ্যাম্বিয়েন্ট সাউন্ড
+              </h3>
+              <p class="text-purple-600 text-sm mt-2">গভীর একাগ্রতার জন্য</p>
+            </div>
+
+            <div class="space-y-3">
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200"
+                data-sound="white-noise"
+                data-title="হোয়াইট নয়েজ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-purple-700">⚪ হোয়াইট নয়েজ</span>
+                  <svg
+                    class="w-5 h-5 text-purple-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200"
+                data-sound="pink-noise"
+                data-title="পিংক নয়েজ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-purple-700">🌸 পিংক নয়েজ</span>
+                  <svg
+                    class="w-5 h-5 text-purple-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200"
+                data-sound="brown-noise"
+                data-title="ব্রাউন নয়েজ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-purple-700">🤎 ব্রাউন নয়েজ</span>
+                  <svg
+                    class="w-5 h-5 text-purple-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200"
+                data-sound="cafe"
+                data-title="ক্যাফের শব্দ"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-purple-700">☕ ক্যাফের শব্দ</span>
+                  <svg
+                    class="w-5 h-5 text-purple-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Healing Frequencies -->
+          <div
+            class="sound-category bg-gradient-to-br from-blue-50 to-cyan-100 rounded-xl p-6 border border-blue-200"
+          >
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-3">🔊</div>
+              <h3 class="text-xl font-semibold text-blue-800">
+                নিরাময়কারী ফ্রিকোয়েন্সি
+              </h3>
+              <p class="text-blue-600 text-sm mt-2">বৈজ্ঞানিক সাউন্ড থেরাপি</p>
+            </div>
+
+            <div class="space-y-3">
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200"
+                data-sound="528hz"
+                data-title="৫২৮ Hz - ভালোবাসার ফ্রিকোয়েন্সি"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-blue-700">💖 ৫২৮ Hz - ভালোবাসা</span>
+                  <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200"
+                data-sound="432hz"
+                data-title="৪৩২ Hz - প্রাকৃতিক সুর"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-blue-700">🎼 ৪৩২ Hz - প্রাকৃতিক</span>
+                  <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200"
+                data-sound="741hz"
+                data-title="৭৪১ Hz - সমস্যা সমাধান"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-blue-700">🧠 ৭৪১ Hz - সমাধান</span>
+                  <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+
+              <button
+                class="sound-btn w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200"
+                data-sound="binaural"
+                data-title="বাইনোরাল বিটস"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-blue-700">🎧 বাইনোরাল বিটস</span>
+                  <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mix Your Own Sounds -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          নিজের মিক্স তৈরি করুন
+        </h2>
+
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="text-center">
+              <h4 class="font-semibold mb-4 text-gray-800">🌧️ বৃষ্টি</h4>
+              <input
+                type="range"
+                class="mix-slider w-full mb-2"
+                data-sound="rain"
+                min="0"
+                max="100"
+                value="0"
+              />
+              <span class="mix-volume text-sm text-gray-600">0%</span>
+            </div>
+
+            <div class="text-center">
+              <h4 class="font-semibold mb-4 text-gray-800">🌊 সমুদ্র</h4>
+              <input
+                type="range"
+                class="mix-slider w-full mb-2"
+                data-sound="ocean"
+                min="0"
+                max="100"
+                value="0"
+              />
+              <span class="mix-volume text-sm text-gray-600">0%</span>
+            </div>
+
+            <div class="text-center">
+              <h4 class="font-semibold mb-4 text-gray-800">🌲 বন</h4>
+              <input
+                type="range"
+                class="mix-slider w-full mb-2"
+                data-sound="forest"
+                min="0"
+                max="100"
+                value="0"
+              />
+              <span class="mix-volume text-sm text-gray-600">0%</span>
+            </div>
+
+            <div class="text-center">
+              <h4 class="font-semibold mb-4 text-gray-800">🔥 আগুন</h4>
+              <input
+                type="range"
+                class="mix-slider w-full mb-2"
+                data-sound="fire"
+                min="0"
+                max="100"
+                value="0"
+              />
+              <span class="mix-volume text-sm text-gray-600">0%</span>
+            </div>
+          </div>
+
+          <div class="text-center mt-8">
+            <button
+              id="play-mix"
+              class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full hover:from-purple-700 hover:to-pink-700 transition duration-300 font-semibold"
+            >
+              মিক্স চালান
+            </button>
+            <button
+              id="save-mix"
+              class="ml-4 bg-gray-600 text-white px-8 py-3 rounded-full hover:bg-gray-700 transition duration-300 font-semibold"
+            >
+              মিক্স সেভ করুন
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Benefits Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          উপকারিতা
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="text-center p-6 bg-white rounded-xl shadow-lg">
+            <div class="text-4xl mb-4">😴</div>
+            <h3 class="text-xl font-semibold mb-3">ভালো ঘুম</h3>
+            <p class="text-gray-600">
+              প্রশান্তিদায়ক শব্দ গভীর ও শান্তিপূর্ণ ঘুমে সাহায্য করে
+            </p>
+          </div>
+
+          <div class="text-center p-6 bg-white rounded-xl shadow-lg">
+            <div class="text-4xl mb-4">🧠</div>
+            <h3 class="text-xl font-semibold mb-3">মনোযোগ বৃদ্ধি</h3>
+            <p class="text-gray-600">
+              কাজে একাগ্রতা এবং উৎপাদনশীলতা বৃদ্ধি পায়
+            </p>
+          </div>
+
+          <div class="text-center p-6 bg-white rounded-xl shadow-lg">
+            <div class="text-4xl mb-4">❤️</div>
+            <h3 class="text-xl font-semibold mb-3">স্ট্রেস কমায়</h3>
+            <p class="text-gray-600">
+              মানসিক চাপ ও দুশ্চিন্তা হ্রাস করে শান্তি আনে
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Timer Modal -->
+    <div
+      id="timer-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-2xl font-semibold mb-6 text-center">টাইমার সেট করুন</h3>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-4 gap-4">
+            <button
+              class="timer-preset bg-teal-100 hover:bg-teal-200 p-3 rounded-lg text-teal-800 font-semibold"
+              data-minutes="5"
+            >
+              ৫ মিনিট
+            </button>
+            <button
+              class="timer-preset bg-teal-100 hover:bg-teal-200 p-3 rounded-lg text-teal-800 font-semibold"
+              data-minutes="10"
+            >
+              ১০ মিনিট
+            </button>
+            <button
+              class="timer-preset bg-teal-100 hover:bg-teal-200 p-3 rounded-lg text-teal-800 font-semibold"
+              data-minutes="15"
+            >
+              ১৫ মিনিট
+            </button>
+            <button
+              class="timer-preset bg-teal-100 hover:bg-teal-200 p-3 rounded-lg text-teal-800 font-semibold"
+              data-minutes="30"
+            >
+              ৩০ মিনিট
+            </button>
+          </div>
+
+          <div class="text-center">
+            <label class="block text-gray-700 mb-2">কাস্টম সময় (মিনিট)</label>
+            <input
+              type="number"
+              id="custom-timer"
+              class="w-24 p-2 border border-gray-300 rounded-lg text-center"
+              min="1"
+              max="180"
+              value="10"
+            />
+          </div>
+        </div>
+
+        <div class="flex space-x-4 mt-6">
+          <button
+            id="start-timer"
+            class="flex-1 bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300 font-semibold"
+          >
+            টাইমার শুরু
+          </button>
+          <button
+            id="cancel-timer"
+            class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition duration-300 font-semibold"
+          >
+            বাতিল
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Audio Context and Sound Management
+      class SoundManager {
+        constructor() {
+          this.audioContext = null;
+          this.sounds = {};
+          this.currentTrack = null;
+          this.isPlaying = false;
+          this.timer = null;
+          this.timerDuration = 0;
+          this.timerStartTime = null;
+          this.volume = 0.5;
+
+          this.initializeAudioContext();
+          this.setupEventListeners();
+          this.createVisualizer();
+        }
+
+        async initializeAudioContext() {
+          try {
+            this.audioContext = new (window.AudioContext ||
+              window.webkitAudioContext)();
+          } catch (error) {
+            console.error("AudioContext not supported:", error);
+          }
+        }
+
+        setupEventListeners() {
+          // Main play button
+          document
+            .getElementById("main-play-btn")
+            .addEventListener("click", () => {
+              this.togglePlayback();
+            });
+
+          // Volume control
+          const volumeSlider = document.getElementById("volume-slider");
+          volumeSlider.addEventListener("input", (e) => {
+            this.setVolume(e.target.value / 100);
+            document.getElementById("volume-display").textContent =
+              e.target.value + "%";
+          });
+
+          // Timer button
+          document.getElementById("timer-btn").addEventListener("click", () => {
+            this.showTimerModal();
+          });
+
+          // Sound buttons
+          document.querySelectorAll(".sound-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const soundType = btn.dataset.sound;
+              const title = btn.dataset.title;
+              this.loadSound(soundType, title);
+            });
+          });
+
+          // Mix sliders
+          document.querySelectorAll(".mix-slider").forEach((slider) => {
+            slider.addEventListener("input", (e) => {
+              const volume = e.target.value;
+              const label = e.target.parentElement.querySelector(".mix-volume");
+              label.textContent = volume + "%";
+
+              if (volume > 0) {
+                this.playMixSound(e.target.dataset.sound, volume / 100);
+              } else {
+                this.stopMixSound(e.target.dataset.sound);
+              }
+            });
+          });
+
+          // Timer modal events
+          this.setupTimerModal();
+        }
+
+        loadSound(soundType, title) {
+          document.getElementById("current-track").textContent = title;
+          this.currentTrack = soundType;
+
+          // For demonstration, we'll use generated tones and noise
+          // In a real implementation, you would load actual audio files
+          this.generateSoundForType(soundType);
+        }
+
+        generateSoundForType(soundType) {
+          if (!this.audioContext) return;
+
+          // Stop current sound
+          this.stopCurrentSound();
+
+          const gainNode = this.audioContext.createGain();
+          gainNode.connect(this.audioContext.destination);
+          gainNode.gain.value = this.volume;
+
+          switch (soundType) {
+            case "rain":
+              this.sounds[soundType] = this.createRainSound(gainNode);
+              break;
+            case "ocean":
+              this.sounds[soundType] = this.createOceanSound(gainNode);
+              break;
+            case "forest":
+              this.sounds[soundType] = this.createForestSound(gainNode);
+              break;
+            case "white-noise":
+              this.sounds[soundType] = this.createWhiteNoise(gainNode);
+              break;
+            case "pink-noise":
+              this.sounds[soundType] = this.createPinkNoise(gainNode);
+              break;
+            case "528hz":
+              this.sounds[soundType] = this.createTone(528, gainNode);
+              break;
+            case "432hz":
+              this.sounds[soundType] = this.createTone(432, gainNode);
+              break;
+            default:
+              this.sounds[soundType] = this.createWhiteNoise(gainNode);
+          }
+
+          this.currentSound = this.sounds[soundType];
+        }
+
+        createRainSound(gainNode) {
+          // Simulate rain with filtered white noise
+          const bufferSize = this.audioContext.sampleRate * 2;
+          const noiseBuffer = this.audioContext.createBuffer(
+            2,
+            bufferSize,
+            this.audioContext.sampleRate
+          );
+
+          for (let channel = 0; channel < 2; channel++) {
+            const output = noiseBuffer.getChannelData(channel);
+            for (let i = 0; i < bufferSize; i++) {
+              output[i] = Math.random() * 2 - 1;
+            }
+          }
+
+          const whiteNoise = this.audioContext.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const filter = this.audioContext.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.value = 1000;
+          filter.Q.value = 0.5;
+
+          whiteNoise.connect(filter);
+          filter.connect(gainNode);
+
+          return whiteNoise;
+        }
+
+        createOceanSound(gainNode) {
+          // Simulate ocean with low-frequency oscillations
+          const oscillator = this.audioContext.createOscillator();
+          oscillator.type = "sine";
+          oscillator.frequency.value = 0.1;
+
+          const gainOsc = this.audioContext.createGain();
+          gainOsc.gain.value = 0.3;
+
+          oscillator.connect(gainOsc);
+          gainOsc.connect(gainNode);
+
+          return oscillator;
+        }
+
+        createForestSound(gainNode) {
+          // Simulate forest ambience
+          return this.createWhiteNoise(gainNode, 0.2);
+        }
+
+        createWhiteNoise(gainNode, volume = 1) {
+          const bufferSize = this.audioContext.sampleRate * 2;
+          const noiseBuffer = this.audioContext.createBuffer(
+            2,
+            bufferSize,
+            this.audioContext.sampleRate
+          );
+
+          for (let channel = 0; channel < 2; channel++) {
+            const output = noiseBuffer.getChannelData(channel);
+            for (let i = 0; i < bufferSize; i++) {
+              output[i] = Math.random() * 2 - 1;
+            }
+          }
+
+          const whiteNoise = this.audioContext.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const gainAdjust = this.audioContext.createGain();
+          gainAdjust.gain.value = volume;
+
+          whiteNoise.connect(gainAdjust);
+          gainAdjust.connect(gainNode);
+
+          return whiteNoise;
+        }
+
+        createPinkNoise(gainNode) {
+          // Simplified pink noise
+          return this.createWhiteNoise(gainNode, 0.7);
+        }
+
+        createTone(frequency, gainNode) {
+          const oscillator = this.audioContext.createOscillator();
+          oscillator.type = "sine";
+          oscillator.frequency.value = frequency;
+          oscillator.connect(gainNode);
+          return oscillator;
+        }
+
+        togglePlayback() {
+          if (!this.currentSound) {
+            alert("প্রথমে একটি শব্দ নির্বাচন করুন");
+            return;
+          }
+
+          const playBtn = document.getElementById("main-play-btn");
+
+          if (this.isPlaying) {
+            this.stopCurrentSound();
+            playBtn.classList.remove("playing");
+            playBtn.innerHTML = `
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                        </svg>
+                    `;
+            this.isPlaying = false;
+            this.stopVisualizer();
+          } else {
+            this.currentSound.start();
+            playBtn.classList.add("playing");
+            playBtn.innerHTML = `
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 002 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    `;
+            this.isPlaying = true;
+            this.startVisualizer();
+          }
+        }
+
+        stopCurrentSound() {
+          if (this.currentSound) {
+            try {
+              this.currentSound.stop();
+            } catch (e) {
+              // Sound already stopped
+            }
+          }
+        }
+
+        setVolume(volume) {
+          this.volume = volume;
+          // Update all active sounds volume
+        }
+
+        createVisualizer() {
+          const visualizer = document.getElementById("visualizer");
+          for (let i = 0; i < 20; i++) {
+            const bar = document.createElement("div");
+            bar.className = "visualizer-bar";
+            bar.style.height = "10px";
+            visualizer.appendChild(bar);
+          }
+        }
+
+        startVisualizer() {
+          const bars = document.querySelectorAll(".visualizer-bar");
+
+          this.visualizerInterval = setInterval(() => {
+            bars.forEach((bar) => {
+              const height = Math.random() * 80 + 10;
+              bar.style.height = height + "px";
+            });
+          }, 100);
+        }
+
+        stopVisualizer() {
+          if (this.visualizerInterval) {
+            clearInterval(this.visualizerInterval);
+            const bars = document.querySelectorAll(".visualizer-bar");
+            bars.forEach((bar) => {
+              bar.style.height = "10px";
+            });
+          }
+        }
+
+        showTimerModal() {
+          document.getElementById("timer-modal").classList.remove("hidden");
+          document.getElementById("timer-modal").classList.add("flex");
+        }
+
+        setupTimerModal() {
+          // Timer presets
+          document.querySelectorAll(".timer-preset").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const minutes = parseInt(btn.dataset.minutes);
+              document.getElementById("custom-timer").value = minutes;
+            });
+          });
+
+          // Start timer
+          document
+            .getElementById("start-timer")
+            .addEventListener("click", () => {
+              const minutes = parseInt(
+                document.getElementById("custom-timer").value
+              );
+              this.startTimer(minutes);
+              this.closeTimerModal();
+            });
+
+          // Cancel timer
+          document
+            .getElementById("cancel-timer")
+            .addEventListener("click", () => {
+              this.closeTimerModal();
+            });
+        }
+
+        closeTimerModal() {
+          document.getElementById("timer-modal").classList.add("hidden");
+          document.getElementById("timer-modal").classList.remove("flex");
+        }
+
+        startTimer(minutes) {
+          this.timerDuration = minutes * 60; // Convert to seconds
+          this.timerStartTime = Date.now();
+
+          this.timer = setInterval(() => {
+            this.updateTimer();
+          }, 1000);
+
+          this.updateTimer();
+        }
+
+        updateTimer() {
+          const elapsed = Math.floor((Date.now() - this.timerStartTime) / 1000);
+          const remaining = Math.max(0, this.timerDuration - elapsed);
+
+          if (remaining === 0) {
+            this.timerComplete();
+            return;
+          }
+
+          const minutes = Math.floor(remaining / 60);
+          const seconds = remaining % 60;
+
+          document.getElementById("timer-display").textContent = `${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        }
+
+        timerComplete() {
+          clearInterval(this.timer);
+          document.getElementById("timer-display").textContent = "সম্পন্ন!";
+
+          // Auto-stop sound
+          if (this.isPlaying) {
+            this.togglePlayback();
+          }
+
+          // Show completion notification
+          setTimeout(() => {
+            alert("টাইমার সম্পন্ন! আপনার মেডিটেশন/রিল্যাক্সেশন সেশন শেষ।");
+            document.getElementById("timer-display").textContent = "00:00";
+          }, 1000);
+        }
+      }
+
+      // Initialize Sound Manager
+      const soundManager = new SoundManager();
+
+      // Additional UI interactions
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mobile menu (if needed)
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", function () {
+            // Add mobile menu functionality
+          });
+        }
+
+        // Add ambient background effect
+        const ambientBg = document.getElementById("ambient-background");
+        let activeSound = null;
+
+        document.querySelectorAll(".sound-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            // Change ambient background based on sound type
+            const soundType = this.dataset.sound;
+
+            ambientBg.classList.remove("active");
+
+            setTimeout(() => {
+              // Change background gradient based on sound
+              const gradients = {
+                rain: "from-gray-400 via-blue-500 to-gray-600",
+                ocean: "from-blue-400 via-cyan-500 to-blue-600",
+                forest: "from-green-400 via-emerald-500 to-green-600",
+                fire: "from-red-400 via-orange-500 to-yellow-600",
+                "white-noise": "from-gray-400 via-gray-500 to-gray-600",
+                "528hz": "from-pink-400 via-purple-500 to-pink-600",
+              };
+
+              const gradient =
+                gradients[soundType] ||
+                "from-blue-400 via-purple-500 to-pink-500";
+
+              ambientBg.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${gradient}"></div>`;
+              ambientBg.classList.add("active");
+            }, 300);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

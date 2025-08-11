@@ -4,212 +4,222 @@
  */
 
 class ConfigManager {
-    constructor() {
-        this.config = {};
-        this.isInitialized = false;
+  constructor() {
+    this.config = {};
+    this.isInitialized = false;
+  }
+
+  /**
+   * Initialize configuration
+   * For frontend apps, we'll use a combination of:
+   * 1. Build-time environment variables (if using build tools)
+   * 2. Runtime configuration files
+   * 3. User-provided API keys (stored in localStorage)
+   */
+  async initialize() {
+    if (this.isInitialized) return this.config;
+
+    try {
+      // Try to load from config.json first (if exists)
+      await this.loadFromConfigFile();
+    } catch (error) {
+      // Config file not found, using environment variables
     }
 
-    /**
-     * Initialize configuration
-     * For frontend apps, we'll use a combination of:
-     * 1. Build-time environment variables (if using build tools)
-     * 2. Runtime configuration files
-     * 3. User-provided API keys (stored in localStorage)
-     */
-    async initialize() {
-        if (this.isInitialized) return this.config;
+    // Load from environment variables (if available)
+    this.loadFromEnvironment();
 
-        try {
-            // Try to load from config.json first (if exists)
-            await this.loadFromConfigFile();
-        } catch (error) {
-            console.log('No config.json found, using environment variables');
-        }
+    // Load user-specific settings
+    this.loadUserSettings();
 
-        // Load from environment variables (if available)
-        this.loadFromEnvironment();
+    this.isInitialized = true;
+    return this.config;
+  }
 
-        // Load user-specific settings
-        this.loadUserSettings();
-
-        this.isInitialized = true;
-        return this.config;
+  /**
+   * Load configuration from config.json file
+   */
+  async loadFromConfigFile() {
+    try {
+      // First try to load from Vercel API endpoint
+      let response = await fetch("/api/env");
+      if (response.ok) {
+        const data = await response.json();
+        this.config = { ...this.config, ...data };
+        return data;
+      }
+    } catch (error) {
+      // Vercel API not available, trying local sources...
     }
 
-    /**
-     * Load configuration from config.json file
-     */
-    async loadFromConfigFile() {
-        try {
-            // First try to load from Vercel API endpoint
-            let response = await fetch('/api/env');
-            if (response.ok) {
-                const envData = await response.json();
-                this.config = { ...this.config, ...envData };
-                console.log('✅ Loaded configuration from Vercel API');
-                return;
-            }
-        } catch (error) {
-            console.log('Vercel API not available, trying local sources...');
-        }
+    try {
+      // Try to load from env.json (served by development server)
+      let response = await fetch("./env.json");
+      if (response.ok) {
+        const envData = await response.json();
+        this.config = { ...this.config, ...envData };
+        return;
+      }
+    } catch (error) {}
 
-        try {
-            // Try to load from env.json (served by development server)
-            let response = await fetch('./env.json');
-            if (response.ok) {
-                const envData = await response.json();
-                this.config = { ...this.config, ...envData };
-                console.log('✅ Loaded configuration from development server');
-                return;
-            }
-        } catch (error) {
-            // Development server not available, try config.json
-        }
-
-        try {
-            // Fallback to static config.json
-            const response = await fetch('./config.json');
-            if (response.ok) {
-                const configData = await response.json();
-                this.config = { ...this.config, ...configData };
-                console.log('✅ Loaded configuration from config.json');
-            }
-        } catch (error) {
-            console.log('ℹ️ No configuration file available, using defaults');
-        }
+    try {
+      // Try to load from env.json (served by development server)
+      let response = await fetch("./env.json");
+      if (response.ok) {
+        const envData = await response.json();
+        this.config = { ...this.config, ...envData };
+        return;
+      }
+    } catch (error) {
+      // Development server not available, try config.json
     }
 
-    /**
-     * Load from environment variables (for build-time injection)
-     */
-    loadFromEnvironment() {
-        // These would be injected at build time by tools like Vite, Webpack, etc.
-        const envConfig = {
-            GEMINI_API_KEY: this.getEnvVar('GEMINI_API_KEY'),
-            SUPABASE_URL: this.getEnvVar('SUPABASE_URL'),
-            SUPABASE_ANON_KEY: this.getEnvVar('SUPABASE_ANON_KEY'),
-            NODE_ENV: this.getEnvVar('NODE_ENV', 'development'),
-            ENABLE_CHAT: this.getEnvVar('ENABLE_CHAT', 'true') === 'true',
-            ENABLE_ANALYTICS: this.getEnvVar('ENABLE_ANALYTICS', 'false') === 'true'
-        };
+    try {
+      // Fallback to static config.json
+      const response = await fetch("./config.json");
+      if (response.ok) {
+        const configData = await response.json();
+        this.config = { ...this.config, ...configData };
+      }
+    } catch (error) {}
+  }
 
-        // Only include defined values
-        Object.keys(envConfig).forEach(key => {
-            if (envConfig[key] !== undefined && envConfig[key] !== null) {
-                this.config[key] = envConfig[key];
-            }
-        });
+  /**
+   * Load from environment variables (for build-time injection)
+   */
+  loadFromEnvironment() {
+    // These would be injected at build time by tools like Vite, Webpack, etc.
+    const envConfig = {
+      GEMINI_API_KEY: this.getEnvVar("GEMINI_API_KEY"),
+      SUPABASE_URL: this.getEnvVar("SUPABASE_URL"),
+      SUPABASE_ANON_KEY: this.getEnvVar("SUPABASE_ANON_KEY"),
+      NODE_ENV: this.getEnvVar("NODE_ENV", "development"),
+      ENABLE_CHAT: this.getEnvVar("ENABLE_CHAT", "true") === "true",
+      ENABLE_ANALYTICS: this.getEnvVar("ENABLE_ANALYTICS", "false") === "true",
+    };
+
+    // Only include defined values
+    Object.keys(envConfig).forEach((key) => {
+      if (envConfig[key] !== undefined && envConfig[key] !== null) {
+        this.config[key] = envConfig[key];
+      }
+    });
+  }
+
+  /**
+   * Load user-specific settings from localStorage
+   */
+  loadUserSettings() {
+    // User-provided API key takes precedence
+    const userApiKey = localStorage.getItem("gemini_api_key");
+    if (userApiKey) {
+      this.config.GEMINI_API_KEY = userApiKey;
     }
 
-    /**
-     * Load user-specific settings from localStorage
-     */
-    loadUserSettings() {
-        // User-provided API key takes precedence
-        const userApiKey = localStorage.getItem('gemini_api_key');
-        if (userApiKey) {
-            this.config.GEMINI_API_KEY = userApiKey;
-        }
+    // Other user preferences
+    const userPrefs = localStorage.getItem("user_preferences");
+    if (userPrefs) {
+      try {
+        const prefs = JSON.parse(userPrefs);
+        this.config.userPreferences = prefs;
+      } catch (error) {
+        console.error("Failed to parse user preferences:", error);
+      }
+    }
+  }
 
-        // Other user preferences
-        const userPrefs = localStorage.getItem('user_preferences');
-        if (userPrefs) {
-            try {
-                const prefs = JSON.parse(userPrefs);
-                this.config.userPreferences = prefs;
-            } catch (error) {
-                console.error('Failed to parse user preferences:', error);
-            }
-        }
+  /**
+   * Get environment variable (works with build-time injection)
+   */
+  getEnvVar(name, defaultValue = undefined) {
+    // For Vite: import.meta.env.VITE_VARIABLE_NAME
+    // For Webpack: process.env.VARIABLE_NAME
+    // For direct access: window.ENV (if injected)
+
+    if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
+      return window.ENV[name];
     }
 
-    /**
-     * Get environment variable (works with build-time injection)
-     */
-    getEnvVar(name, defaultValue = undefined) {
-        // For Vite: import.meta.env.VITE_VARIABLE_NAME
-        // For Webpack: process.env.VARIABLE_NAME
-        // For direct access: window.ENV (if injected)
-        
-        if (typeof window !== 'undefined' && window.ENV && window.ENV[name]) {
-            return window.ENV[name];
-        }
-        
-        if (typeof process !== 'undefined' && process.env && process.env[name]) {
-            return process.env[name];
-        }
-        
-        // Check for Vite environment variables (import.meta.env)
-        try {
-            if (typeof window !== 'undefined' && window.import && window.import.meta && window.import.meta.env) {
-                const viteVar = window.import.meta.env[`VITE_${name}`];
-                if (viteVar) return viteVar;
-            }
-        } catch (e) {
-            // import.meta not available
-        }
-        
-        return defaultValue;
+    if (typeof process !== "undefined" && process.env && process.env[name]) {
+      return process.env[name];
     }
 
-    /**
-     * Get API key with fallback to user input
-     */
-    async getAPIKey() {
-        await this.initialize();
+    // Check for Vite environment variables (import.meta.env)
+    try {
+      if (
+        typeof window !== "undefined" &&
+        window.import &&
+        window.import.meta &&
+        window.import.meta.env
+      ) {
+        const viteVar = window.import.meta.env[`VITE_${name}`];
+        if (viteVar) return viteVar;
+      }
+    } catch (e) {
+      // import.meta not available
+    }
 
-        let apiKey = this.config.GEMINI_API_KEY;
+    return defaultValue;
+  }
 
-        // If no API key found and we're in development, don't prompt - just return empty
-        if (!apiKey || apiKey.trim() === '') {
-            console.warn('⚠️ No Gemini API key found in environment variables');
-            console.log('💡 Please add GEMINI_API_KEY to your .env file');
-            return '';
+  /**
+   * Get API key with fallback to user input
+   */
+  async getAPIKey() {
+    await this.initialize();
+
+    let apiKey = this.config.GEMINI_API_KEY;
+
+    // If no API key found and we're in development, don't prompt - just return empty
+    if (!apiKey || apiKey.trim() === "") {
+      console.warn("⚠️ No Gemini API key found in environment variables");
+      return "";
+    }
+
+    return apiKey;
+  }
+
+  /**
+   * Prompt user for API key
+   */
+  async promptForAPIKey() {
+    return new Promise((resolve) => {
+      const modal = this.createAPIKeyModal();
+      document.body.appendChild(modal);
+
+      const form = modal.querySelector("#api-key-form");
+      const input = modal.querySelector("#api-key-input");
+      const closeBtn = modal.querySelector("#close-modal");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const apiKey = input.value.trim();
+        if (apiKey) {
+          localStorage.setItem("gemini_api_key", apiKey);
+          this.config.GEMINI_API_KEY = apiKey;
+          modal.remove();
+          resolve(apiKey);
         }
+      });
 
-        return apiKey;
-    }
+      closeBtn.addEventListener("click", () => {
+        modal.remove();
+        resolve("");
+      });
 
-    /**
-     * Prompt user for API key
-     */
-    async promptForAPIKey() {
-        return new Promise((resolve) => {
-            const modal = this.createAPIKeyModal();
-            document.body.appendChild(modal);
+      // Focus on input
+      setTimeout(() => input.focus(), 100);
+    });
+  }
 
-            const form = modal.querySelector('#api-key-form');
-            const input = modal.querySelector('#api-key-input');
-            const closeBtn = modal.querySelector('#close-modal');
-
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const apiKey = input.value.trim();
-                if (apiKey) {
-                    localStorage.setItem('gemini_api_key', apiKey);
-                    this.config.GEMINI_API_KEY = apiKey;
-                    modal.remove();
-                    resolve(apiKey);
-                }
-            });
-
-            closeBtn.addEventListener('click', () => {
-                modal.remove();
-                resolve('');
-            });
-
-            // Focus on input
-            setTimeout(() => input.focus(), 100);
-        });
-    }
-
-    /**
-     * Create API key input modal
-     */
-    createAPIKeyModal() {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
+  /**
+   * Create API key input modal
+   */
+  createAPIKeyModal() {
+    const modal = document.createElement("div");
+    modal.className =
+      "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+    modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-gray-800">Gemini API Key প্রয়োজন</h3>
@@ -277,64 +287,68 @@ class ConfigManager {
                 </div>
             </div>
         `;
-        return modal;
-    }
+    return modal;
+  }
 
-    /**
-     * Get configuration value
-     */
-    get(key, defaultValue = undefined) {
-        return this.config[key] || defaultValue;
-    }
+  /**
+   * Get configuration value
+   */
+  get(key, defaultValue = undefined) {
+    return this.config[key] || defaultValue;
+  }
 
-    /**
-     * Set configuration value
-     */
-    set(key, value) {
-        this.config[key] = value;
-    }
+  /**
+   * Set configuration value
+   */
+  set(key, value) {
+    this.config[key] = value;
+  }
 
-    /**
-     * Reset API key (force user to re-enter)
-     */
-    resetAPIKey() {
-        localStorage.removeItem('gemini_api_key');
-        delete this.config.GEMINI_API_KEY;
-        return this.getAPIKey();
-    }
+  /**
+   * Reset API key (force user to re-enter)
+   */
+  resetAPIKey() {
+    localStorage.removeItem("gemini_api_key");
+    delete this.config.GEMINI_API_KEY;
+    return this.getAPIKey();
+  }
 
-    /**
-     * Check if API key is configured
-     */
-    hasAPIKey() {
-        return !!(this.config.GEMINI_API_KEY && this.config.GEMINI_API_KEY.trim());
-    }
+  /**
+   * Check if API key is configured
+   */
+  hasAPIKey() {
+    return !!(this.config.GEMINI_API_KEY && this.config.GEMINI_API_KEY.trim());
+  }
 
-    /**
-     * Get Supabase configuration
-     */
-    getSupabaseConfig() {
-        return {
-            url: this.config.SUPABASE_URL || 'https://brecotrpmeiwktcffdws.supabase.co',
-            anonKey: this.config.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI'
-        };
-    }
+  /**
+   * Get Supabase configuration
+   */
+  getSupabaseConfig() {
+    return {
+      url:
+        this.config.SUPABASE_URL || "https://brecotrpmeiwktcffdws.supabase.co",
+      anonKey:
+        this.config.SUPABASE_ANON_KEY ||
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI",
+    };
+  }
 }
 
 // Create global instance
 window.configManager = new ConfigManager();
 
 // Helper function for easier access
-window.getConfig = (key, defaultValue) => window.configManager.get(key, defaultValue);
+window.getConfig = (key, defaultValue) =>
+  window.configManager.get(key, defaultValue);
 window.setConfig = (key, value) => window.configManager.set(key, value);
 window.resetAPIKey = () => window.configManager.resetAPIKey();
 
 // Load Supabase configuration function for admin login
 window.loadSupabaseConfig = async () => {
-    await window.configManager.initialize();
-    const supabaseConfig = window.configManager.getSupabaseConfig();
-    return {
-        supabaseUrl: supabaseConfig.url,
-        supabaseAnonKey: supabaseConfig.anonKey
-    };
+  await window.configManager.initialize();
+  const supabaseConfig = window.configManager.getSupabaseConfig();
+  return {
+    supabaseUrl: supabaseConfig.url,
+    supabaseAnonKey: supabaseConfig.anonKey,
+  };
 };

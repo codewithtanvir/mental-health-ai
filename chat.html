@@ -123,6 +123,8 @@
             <div class="hidden md:flex items-center space-x-6">
                 <a href="index.html" class="text-gray-600 hover:text-teal-600 transition duration-300">হোম</a>
                 <a href="dashboard.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ড্যাশবোর্ড</a>
+                <a href="pages/exercises.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ব্যায়াম</a>
+                <a href="pages/relaxing-sounds.html" class="text-gray-600 hover:text-teal-600 transition duration-300">প্রশান্তিদায়ক শব্দ</a>
                 <a href="pages/blog.html" class="text-gray-600 hover:text-teal-600 transition duration-300">ব্লগ</a>
                 <a href="pages/resources.html" class="text-gray-600 hover:text-teal-600 transition duration-300">রিসোর্স</a>
             </div>
@@ -164,8 +166,8 @@
                                 <span class="text-xl">🤖</span>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-gray-800">জেমিনি এআই</h2>
-                                <p class="text-sm text-gray-600">আপনার মানসিক স্বাস্থ্য সহায়ক</p>
+                                <h2 class="text-xl font-bold text-gray-800">AI সহায়ক</h2>
+                                <p class="text-sm text-gray-600">আপনার মানসিক স্বাস্থ্য সাথী</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -187,7 +189,7 @@
                             <div>
                                 <h3 class="font-semibold text-gray-800 mb-2">স্বাগতম!</h3>
                                 <p class="text-gray-700 text-sm mb-3">
-                                    আমি জেমিনি, আপনার মানসিক স্বাস্থ্য সহকারী। আজ আপনার কেমন লাগছে? 
+                                    আমি আপনার মানসিক স্বাস্থ্য সহকারী। আজ আপনার কেমন লাগছে? 
                                     আপনি নির্দ্বিধায় আপনার মনের কথা বলতে পারেন।
                                 </p>
                                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg">
@@ -229,7 +231,7 @@
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
                             </div>
-                            <span class="text-sm text-gray-500">জেমিনি টাইপ করছে...</span>
+                            <span class="text-sm text-gray-500">AI টাইপ করছে...</span>
                         </div>
                     </div>
                 </div>
@@ -237,18 +239,18 @@
                 <!-- Chat Input -->
                 <div class="border-t border-gray-200 bg-white p-4">
                     <!-- Quick Actions Above Input -->
-                    <div id="quick-suggestions" class="mb-3 flex flex-wrap gap-2 max-h-20 overflow-y-auto">
-                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="আমার আজকের দিনটা কেমন কাটলো সেটা নিয়ে কথা বলতে চাই">
-                            📅 আজকের দিন
+                    <div id="quick-suggestions" class="mb-3 flex flex-wrap gap-2">
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="আমার মন খারাপ লাগছে">
+                            � মন খারাপ
                         </button>
-                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="মানসিক চাপ কমানোর কিছু কার্যকর উপায় বলো">
-                            🧘 স্ট্রেস রিলিফ
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="অনেক চিন্তা হচ্ছে">
+                            😰 চিন্তা
                         </button>
-                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="আমার আত্মবিশ্বাস বাড়ানোর জন্য কী করতে পারি?">
-                            💪 আত্মবিশ্বাস
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="ঘুম হচ্ছে না">
+                            � ঘুমের সমস্যা
                         </button>
-                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="ভালো ঘুমের জন্য কিছু পরামর্শ দাও">
-                            😴 ভালো ঘুম
+                        <button class="suggestion-pill bg-white border border-gray-300 hover:border-teal-500 hover:bg-teal-50 px-3 py-1 rounded-full text-xs text-gray-700 hover:text-teal-700 transition-colors" data-message="মেডিটেশন শিখতে চাই">
+                            🧘‍♀️ মেডিটেশন
                         </button>
                     </div>
                     
@@ -334,115 +336,54 @@
                 </div>
             </div>
 
-            <!-- Enhanced Quick Actions -->
+            <!-- Simple Quick Actions -->
             <div class="mt-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <span class="mr-2">🎯</span>
                     দ্রুত সহায়তা
                 </h3>
                 
-                <!-- Action Categories -->
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <!-- Mood Management -->
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                        <h4 class="font-medium text-blue-800 mb-3 flex items-center">
-                            <span class="mr-2">💙</span>
-                            মানসিক অবস্থা
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <!-- Wellness Tools -->
+                    <div class="bg-gradient-to-br from-teal-50 to-blue-50 rounded-xl p-6 border border-teal-200">
+                        <h4 class="font-medium text-teal-800 mb-4 flex items-center">
+                            <span class="mr-2">🧘‍♀️</span>
+                            মানসিক সুস্থতা
                         </h4>
-                        <div class="space-y-2">
-                            <button class="quick-action w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="আজ আমার মন খুব খারাপ। কী করতে পারি?" 
-                                    data-category="mood">
-                                <div class="text-blue-700 text-sm font-medium">😔 মন খারাপ লাগছে</div>
-                                <div class="text-blue-600 text-xs mt-1">মানসিক চাপ কমানোর উপায়</div>
-                            </button>
-                            <button class="quick-action w-full text-left bg-white hover:bg-blue-50 p-3 rounded-lg border border-blue-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="অনেক দুশ্চিন্তা হচ্ছে। কীভাবে শান্ত থাকব?" 
+                        <div class="space-y-3">
+                            <a href="pages/exercises.html" class="quick-action-link w-full text-left bg-white hover:bg-teal-50 p-4 rounded-lg border border-teal-200 transition-all duration-200 hover:shadow-md block">
+                                <div class="text-teal-700 text-sm font-medium">� মানসিক ব্যায়াম</div>
+                                <div class="text-teal-600 text-xs mt-1">শ্বাসের ব্যায়াম, মেডিটেশন গাইড</div>
+                            </a>
+                            <a href="pages/relaxing-sounds.html" class="quick-action-link w-full text-left bg-white hover:bg-teal-50 p-4 rounded-lg border border-teal-200 transition-all duration-200 hover:shadow-md block">
+                                <div class="text-teal-700 text-sm font-medium">🎵 প্রশান্তিদায়ক শব্দ</div>
+                                <div class="text-teal-600 text-xs mt-1">প্রকৃতির শব্দ, মেডিটেশন মিউজিক</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Common Issues -->
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                        <h4 class="font-medium text-purple-800 mb-4 flex items-center">
+                            <span class="mr-2">�</span>
+                            সাধারণ সমস্যা
+                        </h4>
+                        <div class="space-y-3">
+                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-4 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="আমার খুব চিন্তা হচ্ছে। কীভাবে শান্ত থাকব?" 
                                     data-category="anxiety">
-                                <div class="text-blue-700 text-sm font-medium">😰 দুশ্চিন্তা</div>
-                                <div class="text-blue-600 text-xs mt-1">চিন্তা কমানোর কৌশল</div>
+                                <div class="text-purple-700 text-sm font-medium">� অতিরিক্ত চিন্তা</div>
+                                <div class="text-purple-600 text-xs mt-1">দুশ্চিন্তা কমানোর উপায়</div>
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Daily Life -->
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                        <h4 class="font-medium text-green-800 mb-3 flex items-center">
-                            <span class="mr-2">🌱</span>
-                            দৈনন্দিন জীবন
-                        </h4>
-                        <div class="space-y-2">
-                            <button class="quick-action w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="ঘুমের সমস্যা হচ্ছে। ভালো ঘুমের জন্য কী করব?" 
-                                    data-category="sleep">
-                                <div class="text-green-700 text-sm font-medium">😴 ঘুমের সমস্যা</div>
-                                <div class="text-green-600 text-xs mt-1">ভালো ঘুমের টিপস</div>
-                            </button>
-                            <button class="quick-action w-full text-left bg-white hover:bg-green-50 p-3 rounded-lg border border-green-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="পড়াশোনায় মনোযোগ দিতে পারছি না। সাহায্য চাই।" 
-                                    data-category="focus">
-                                <div class="text-green-700 text-sm font-medium">📚 মনোযোগের অভাব</div>
-                                <div class="text-green-600 text-xs mt-1">ফোকাস বাড়ানোর উপায়</div>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Emotional Support -->
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                        <h4 class="font-medium text-purple-800 mb-3 flex items-center">
-                            <span class="mr-2">💜</span>
-                            আবেগ নিয়ন্ত্রণ
-                        </h4>
-                        <div class="space-y-2">
-                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="রাগ নিয়ন্ত্রণ করতে পারছি না। সাহায্য চাই।" 
-                                    data-category="anger">
-                                <div class="text-purple-700 text-sm font-medium">😡 রাগ নিয়ন্ত্রণ</div>
-                                <div class="text-purple-600 text-xs mt-1">রাগ ম্যানেজমেন্ট</div>
-                            </button>
-                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-3 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
-                                    data-message="আত্মবিশ্বাস কম লাগছে। কীভাবে বাড়াবো?" 
-                                    data-category="confidence">
-                                <div class="text-purple-700 text-sm font-medium">💪 আত্মবিশ্বাস</div>
-                                <div class="text-purple-600 text-xs mt-1">আত্মবিশ্বাস বৃদ্ধি</div>
+                            <button class="quick-action w-full text-left bg-white hover:bg-purple-50 p-4 rounded-lg border border-purple-200 transition-all duration-200 hover:shadow-md" 
+                                    data-message="মন খারাপ লাগছে। কী করতে পারি?" 
+                                    data-category="mood">
+                                <div class="text-purple-700 text-sm font-medium">� মন খারাপ</div>
+                                <div class="text-purple-600 text-xs mt-1">মুড ভালো করার টিপস</div>
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Additional Quick Topics -->
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h4 class="font-medium text-gray-800 mb-3 flex items-center">
-                        <span class="mr-2">⚡</span>
-                        জনপ্রিয় বিষয়
-                    </h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
-                                data-message="মেডিটেশন কীভাবে শুরু করব?">
-                            🧘‍♀️ মেডিটেশন
-                        </button>
-                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
-                                data-message="ব্রিদিং এক্সারসাইজ শেখাও">
-                            🫁 শ্বাসের ব্যায়াম
-                        </button>
-                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
-                                data-message="পজিটিভ থিংকিং এর উপায়">
-                            ✨ ইতিবাচক চিন্তা
-                        </button>
-                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
-                                data-message="মানসিক চাপ কমানোর খাবার">
-                            🥗 স্বাস্থ্যকর খাবার
-                        </button>
-                        <button class="suggestion-pill bg-white hover:bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-700 border border-gray-300 transition-all duration-200 hover:shadow-md" 
-                                data-message="ভালো বন্ধুত্ব কীভাবে গড়ব?">
-                            👥 সামাজিক সম্পর্ক
-                        </button>
-                    </div>
-                </div>
-            </div>
-                    <div class="text-purple-600 text-sm font-medium">😤 রাগ নিয়ন্ত্রণ</div>
-                    <div class="text-purple-500 text-xs mt-1">রাগ ম্যানেজমেন্ট</div>
-                </button>
             </div>
 
             <!-- Emergency Notice -->

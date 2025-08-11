@@ -28,9 +28,6 @@ export default function handler(req, res) {
         };
 
         // Log for debugging (remove in production)
-        console.log('Environment variables requested from:', req.headers.referer || 'unknown');
-        console.log('GEMINI_API_KEY available:', !!envVars.GEMINI_API_KEY);
-
         // Return environment variables
         res.status(200).json(envVars);
     } catch (error) {

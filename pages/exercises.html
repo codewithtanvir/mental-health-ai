@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>মানসিক ব্যায়াম - মানসিক স্বাস্থ্য এআই</title>
+
+    <!-- Meta Tags -->
+    <meta
+      name="description"
+      content="মানসিক স্বাস্থ্যের জন্য কার্যকর ব্যায়াম এবং কৌশল"
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css" />
+
+    <style>
+      .breathing-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+        animation: breathe 4s infinite ease-in-out;
+        box-shadow: 0 0 30px rgba(13, 148, 136, 0.3);
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+      }
+
+      .meditation-timer {
+        font-family: "Courier New", monospace;
+        font-size: 2rem;
+        font-weight: bold;
+      }
+
+      .exercise-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .progress-ring {
+        transform: rotate(-90deg);
+      }
+
+      .progress-ring-circle {
+        stroke-dasharray: 283;
+        stroke-dashoffset: 283;
+        transition: stroke-dashoffset 1s linear;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+      <nav
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <a href="../index.html" class="text-2xl font-bold text-teal-600"
+          >মানসিক স্বাস্থ্য এআই</a
+        >
+
+        <!-- Navigation -->
+        <div class="hidden md:flex items-center space-x-6">
+          <a
+            href="../index.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >হোম</a
+          >
+          <a
+            href="../chat.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >চ্যাট</a
+          >
+          <a href="exercises.html" class="text-teal-600 font-semibold"
+            >ব্যায়াম</a
+          >
+          <a
+            href="relaxing-sounds.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >প্রশান্তিদায়ক শব্দ</a
+          >
+          <a
+            href="blog.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >ব্লগ</a
+          >
+          <a
+            href="resources.html"
+            class="text-gray-600 hover:text-teal-600 transition duration-300"
+            >রিসোর্স</a
+          >
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-btn"
+          class="md:hidden text-gray-600 hover:text-teal-600"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+      <!-- Hero Section -->
+      <section class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          মানসিক ব্যায়াম
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          মানসিক স্বাস্থ্য উন্নতির জন্য প্রমাণিত কার্যকর ব্যায়াম এবং কৌশলসমূহ
+        </p>
+      </section>
+
+      <!-- Breathing Exercise Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          🫁 শ্বাসের ব্যায়াম
+        </h2>
+
+        <!-- Guided Breathing -->
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+          <div class="text-center mb-8">
+            <h3 class="text-2xl font-semibold mb-4">৪-৭-৮ শ্বাসের কৌশল</h3>
+            <p class="text-gray-600 mb-6">
+              এই কৌশলটি মানসিক চাপ কমাতে এবং শান্তি পেতে সাহায্য করে
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <!-- Breathing Circle -->
+            <div class="text-center">
+              <div class="flex justify-center mb-6">
+                <div
+                  id="breathing-circle"
+                  class="breathing-circle flex items-center justify-center"
+                >
+                  <div
+                    class="text-white text-xl font-semibold"
+                    id="breathing-text"
+                  >
+                    প্রস্তুত
+                  </div>
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="space-y-4">
+                <button
+                  id="start-breathing"
+                  class="bg-teal-600 text-white px-8 py-3 rounded-full hover:bg-teal-700 transition duration-300 font-semibold"
+                >
+                  ব্যায়াম শুরু করুন
+                </button>
+                <button
+                  id="stop-breathing"
+                  class="bg-gray-500 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition duration-300 font-semibold hidden"
+                >
+                  থামান
+                </button>
+              </div>
+
+              <!-- Timer -->
+              <div class="mt-6">
+                <div
+                  class="meditation-timer text-gray-700"
+                  id="breathing-timer"
+                >
+                  00:00
+                </div>
+                <p class="text-sm text-gray-500">মোট সময়</p>
+              </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="space-y-6">
+              <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <h4 class="font-semibold text-blue-800 mb-3">কীভাবে করবেন:</h4>
+                <ol class="space-y-2 text-blue-700">
+                  <li class="flex items-start">
+                    <span
+                      class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5"
+                      >১</span
+                    >
+                    ৪ সেকেন্ড ধরে নাক দিয়ে শ্বাস নিন
+                  </li>
+                  <li class="flex items-start">
+                    <span
+                      class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5"
+                      >২</span
+                    >
+                    ৭ সেকেন্ড শ্বাস ধরে রাখুন
+                  </li>
+                  <li class="flex items-start">
+                    <span
+                      class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5"
+                      >৩</span
+                    >
+                    ৮ সেকেন্ড ধরে মুখ দিয়ে শ্বাস ছাড়ুন
+                  </li>
+                </ol>
+              </div>
+
+              <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                <h4 class="font-semibold text-green-800 mb-3">উপকারিতা:</h4>
+                <ul class="space-y-1 text-green-700">
+                  <li>• মানসিক চাপ কমায়</li>
+                  <li>• দুশ্চিন্তা হ্রাস করে</li>
+                  <li>• ঘুমের মান উন্নত করে</li>
+                  <li>• মনোযোগ বৃদ্ধি করে</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Meditation Exercises -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          🧘‍♀️ মেডিটেশন অনুশীলন
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Mindfulness Meditation -->
+          <div
+            class="exercise-card bg-white rounded-xl shadow-lg p-6 transition-all duration-300"
+          >
+            <div class="text-4xl mb-4 text-center">🌸</div>
+            <h3 class="text-xl font-semibold mb-3 text-center">
+              মাইন্ডফুলনেস মেডিটেশন
+            </h3>
+            <p class="text-gray-600 mb-4 text-center">
+              বর্তমান মুহূর্তে মনোযোগ দিয়ে শান্তি পান
+            </p>
+
+            <div class="space-y-3">
+              <button
+                onclick="startMeditation('mindfulness')"
+                class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300"
+              >
+                ৫ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('mindfulness', 10)"
+                class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-300"
+              >
+                ১০ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('mindfulness', 15)"
+                class="w-full bg-purple-400 text-white py-2 px-4 rounded-lg hover:bg-purple-500 transition duration-300"
+              >
+                ১৫ মিনিট
+              </button>
+            </div>
+          </div>
+
+          <!-- Body Scan -->
+          <div
+            class="exercise-card bg-white rounded-xl shadow-lg p-6 transition-all duration-300"
+          >
+            <div class="text-4xl mb-4 text-center">🌊</div>
+            <h3 class="text-xl font-semibold mb-3 text-center">
+              বডি স্ক্যান মেডিটেশন
+            </h3>
+            <p class="text-gray-600 mb-4 text-center">
+              শরীরের প্রতিটি অংশে মনোযোগ দিয়ে শিথিলতা অনুভব করুন
+            </p>
+
+            <div class="space-y-3">
+              <button
+                onclick="startMeditation('bodyscan')"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
+              >
+                ৫ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('bodyscan', 10)"
+                class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+              >
+                ১০ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('bodyscan', 15)"
+                class="w-full bg-blue-400 text-white py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-300"
+              >
+                ১৫ মিনিট
+              </button>
+            </div>
+          </div>
+
+          <!-- Loving Kindness -->
+          <div
+            class="exercise-card bg-white rounded-xl shadow-lg p-6 transition-all duration-300"
+          >
+            <div class="text-4xl mb-4 text-center">💝</div>
+            <h3 class="text-xl font-semibold mb-3 text-center">
+              প্রেমময়তা মেডিটেশন
+            </h3>
+            <p class="text-gray-600 mb-4 text-center">
+              নিজের এবং অন্যদের প্রতি ভালোবাসা বৃদ্ধি করুন
+            </p>
+
+            <div class="space-y-3">
+              <button
+                onclick="startMeditation('loving-kindness')"
+                class="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-300"
+              >
+                ৫ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('loving-kindness', 10)"
+                class="w-full bg-pink-500 text-white py-2 px-4 rounded-lg hover:bg-pink-600 transition duration-300"
+              >
+                ১০ মিনিট
+              </button>
+              <button
+                onclick="startMeditation('loving-kindness', 15)"
+                class="w-full bg-pink-400 text-white py-2 px-4 rounded-lg hover:bg-pink-500 transition duration-300"
+              >
+                ১৫ মিনিট
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Relief Exercises -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          ⚡ তাৎক্ষণিক স্ট্রেস রিলিফ
+        </h2>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- 5-4-3-2-1 Technique -->
+          <div
+            class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-8 border border-yellow-200"
+          >
+            <div class="text-center mb-6">
+              <div class="text-4xl mb-3">🔍</div>
+              <h3 class="text-2xl font-semibold text-yellow-800">
+                ৫-৪-৩-২-১ কৌশল
+              </h3>
+              <p class="text-yellow-700 mt-2">
+                প্যানিক অ্যাটাক বা অতিরিক্ত দুশ্চিন্তার সময় ব্যবহার করুন
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="bg-white p-4 rounded-lg border border-yellow-300">
+                <span class="font-bold text-yellow-800">৫টি জিনিস</span> যা আপনি
+                দেখতে পাচ্ছেন তা চিহ্নিত করুন
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-yellow-300">
+                <span class="font-bold text-yellow-800">৪টি জিনিস</span> যা আপনি
+                স্পর্শ করতে পারেন
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-yellow-300">
+                <span class="font-bold text-yellow-800">৩টি শব্দ</span> যা আপনি
+                শুনতে পাচ্ছেন
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-yellow-300">
+                <span class="font-bold text-yellow-800">২টি গন্ধ</span> যা আপনি
+                অনুভব করতে পারেন
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-yellow-300">
+                <span class="font-bold text-yellow-800">১টি স্বাদ</span> যা আপনি
+                মুখে অনুভব করেন
+              </div>
+            </div>
+
+            <button
+              onclick="start54321()"
+              class="w-full mt-6 bg-yellow-600 text-white py-3 px-6 rounded-lg hover:bg-yellow-700 transition duration-300 font-semibold"
+            >
+              গাইডেড অনুশীলন শুরু করুন
+            </button>
+          </div>
+
+          <!-- Progressive Muscle Relaxation -->
+          <div
+            class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 border border-green-200"
+          >
+            <div class="text-center mb-6">
+              <div class="text-4xl mb-3">💪</div>
+              <h3 class="text-2xl font-semibold text-green-800">
+                প্রগ্রেসিভ মাসল রিল্যাক্সেশন
+              </h3>
+              <p class="text-green-700 mt-2">
+                শরীরের পেশী শিথিল করে মানসিক চাপ কমান
+              </p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="bg-white p-4 rounded-lg border border-green-300">
+                <div class="font-bold text-green-800 mb-2">ধাপ ১:</div>
+                <p class="text-green-700">
+                  পায়ের আঙুল থেকে শুরু করে ৫ সেকেন্ড চাপ দিন
+                </p>
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-green-300">
+                <div class="font-bold text-green-800 mb-2">ধাপ ২:</div>
+                <p class="text-green-700">হঠাৎ করে সব চাপ ছেড়ে দিন</p>
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-green-300">
+                <div class="font-bold text-green-800 mb-2">ধাপ ৩:</div>
+                <p class="text-green-700">১৫ সেকেন্ড শিথিলতা অনুভব করুন</p>
+              </div>
+              <div class="bg-white p-4 rounded-lg border border-green-300">
+                <div class="font-bold text-green-800 mb-2">ধাপ ৪:</div>
+                <p class="text-green-700">
+                  সারা শরীরে এই প্রক্রিয়া পুনরাবৃত্তি করুন
+                </p>
+              </div>
+            </div>
+
+            <button
+              onclick="startPMR()"
+              class="w-full mt-6 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition duration-300 font-semibold"
+            >
+              গাইডেড সেশন শুরু করুন
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Practices -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+          📅 দৈনিক অনুশীলন
+        </h2>
+
+        <div class="max-w-4xl mx-auto">
+          <div class="grid md:grid-cols-3 gap-6">
+            <!-- Morning Practice -->
+            <div
+              class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-6 border border-orange-200"
+            >
+              <div class="text-center mb-4">
+                <div class="text-3xl mb-2">🌅</div>
+                <h3 class="text-xl font-semibold text-orange-800">
+                  সকালের অনুশীলন
+                </h3>
+              </div>
+              <ul class="space-y-2 text-orange-700">
+                <li>• ৫ মিনিট মেডিটেশন</li>
+                <li>• কৃতজ্ঞতা প্রকাশ</li>
+                <li>• ইতিবাচক চিন্তা</li>
+                <li>• দিনের পরিকল্পনা</li>
+              </ul>
+              <button
+                onclick="startDailyPractice('morning')"
+                class="w-full mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition duration-300"
+              >
+                শুরু করুন
+              </button>
+            </div>
+
+            <!-- Midday Practice -->
+            <div
+              class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200"
+            >
+              <div class="text-center mb-4">
+                <div class="text-3xl mb-2">☀️</div>
+                <h3 class="text-xl font-semibold text-blue-800">
+                  দুপুরের বিরতি
+                </h3>
+              </div>
+              <ul class="space-y-2 text-blue-700">
+                <li>• স্ট্রেচিং</li>
+                <li>• গভীর শ্বাস</li>
+                <li>• মানসিক রিচার্জ</li>
+                <li>• হাইড্রেশন</li>
+              </ul>
+              <button
+                onclick="startDailyPractice('midday')"
+                class="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+              >
+                শুরু করুন
+              </button>
+            </div>
+
+            <!-- Evening Practice -->
+            <div
+              class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200"
+            >
+              <div class="text-center mb-4">
+                <div class="text-3xl mb-2">🌙</div>
+                <h3 class="text-xl font-semibold text-purple-800">
+                  সন্ধ্যার শান্তি
+                </h3>
+              </div>
+              <ul class="space-y-2 text-purple-700">
+                <li>• দিনের পর্যালোচনা</li>
+                <li>• শিথিলায়ন</li>
+                <li>• ঘুমের প্রস্তুতি</li>
+                <li>• কৃতজ্ঞতা জানানো</li>
+              </ul>
+              <button
+                onclick="startDailyPractice('evening')"
+                class="w-full mt-4 bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-300"
+              >
+                শুরু করুন
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Meditation Modal -->
+    <div
+      id="meditation-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+          <h3 id="meditation-title" class="text-2xl font-semibold mb-4"></h3>
+
+          <!-- Timer Display -->
+          <div class="mb-6">
+            <svg
+              class="progress-ring w-32 h-32 mx-auto"
+              width="120"
+              height="120"
+            >
+              <circle
+                class="progress-ring-circle stroke-current text-gray-300"
+                stroke-width="4"
+                fill="transparent"
+                r="45"
+                cx="60"
+                cy="60"
+              />
+              <circle
+                id="progress-circle"
+                class="progress-ring-circle stroke-current text-teal-600"
+                stroke-width="4"
+                fill="transparent"
+                r="45"
+                cx="60"
+                cy="60"
+              />
+            </svg>
+            <div class="meditation-timer mt-4" id="meditation-time">05:00</div>
+          </div>
+
+          <!-- Instructions -->
+          <div
+            id="meditation-instructions"
+            class="text-gray-600 mb-6 text-left"
+          >
+            <!-- Instructions will be loaded here -->
+          </div>
+
+          <!-- Controls -->
+          <div class="space-x-4">
+            <button
+              id="pause-meditation"
+              class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
+            >
+              বিরতি
+            </button>
+            <button
+              id="stop-meditation"
+              class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+            >
+              শেষ
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Breathing Exercise
+      let breathingInterval;
+      let breathingStartTime;
+      let breathingTimer;
+
+      document
+        .getElementById("start-breathing")
+        .addEventListener("click", function () {
+          startBreathingExercise();
+        });
+
+      document
+        .getElementById("stop-breathing")
+        .addEventListener("click", function () {
+          stopBreathingExercise();
+        });
+
+      function startBreathingExercise() {
+        const circle = document.getElementById("breathing-circle");
+        const text = document.getElementById("breathing-text");
+        const startBtn = document.getElementById("start-breathing");
+        const stopBtn = document.getElementById("stop-breathing");
+
+        startBtn.classList.add("hidden");
+        stopBtn.classList.remove("hidden");
+
+        breathingStartTime = Date.now();
+        breathingTimer = setInterval(updateBreathingTimer, 1000);
+
+        let cycle = 0;
+        const phases = [
+          { text: "শ্বাস নিন", duration: 4000, scale: 1.2 },
+          { text: "ধরে রাখুন", duration: 7000, scale: 1.2 },
+          { text: "ছাড়ুন", duration: 8000, scale: 1 },
+        ];
+
+        function runCycle() {
+          if (cycle >= phases.length) cycle = 0;
+
+          const phase = phases[cycle];
+          text.textContent = phase.text;
+          circle.style.transform = `scale(${phase.scale})`;
+          circle.style.transition = `transform ${phase.duration}ms ease-in-out`;
+
+          breathingInterval = setTimeout(() => {
+            cycle++;
+            runCycle();
+          }, phase.duration);
+        }
+
+        runCycle();
+      }
+
+      function stopBreathingExercise() {
+        clearTimeout(breathingInterval);
+        clearInterval(breathingTimer);
+
+        const circle = document.getElementById("breathing-circle");
+        const text = document.getElementById("breathing-text");
+        const startBtn = document.getElementById("start-breathing");
+        const stopBtn = document.getElementById("stop-breathing");
+
+        circle.style.transform = "scale(1)";
+        text.textContent = "সম্পন্ন!";
+
+        startBtn.classList.remove("hidden");
+        stopBtn.classList.add("hidden");
+
+        setTimeout(() => {
+          text.textContent = "প্রস্তুত";
+        }, 2000);
+      }
+
+      function updateBreathingTimer() {
+        const elapsed = Math.floor((Date.now() - breathingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById("breathing-timer").textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      // Meditation Functions
+      let meditationTimer;
+      let meditationStartTime;
+      let meditationDuration;
+      let isPaused = false;
+
+      function startMeditation(type, duration = 5) {
+        meditationDuration = duration * 60; // Convert to seconds
+        showMeditationModal(type, duration);
+      }
+
+      function showMeditationModal(type, duration) {
+        const modal = document.getElementById("meditation-modal");
+        const title = document.getElementById("meditation-title");
+        const instructions = document.getElementById("meditation-instructions");
+        const timeDisplay = document.getElementById("meditation-time");
+
+        // Set title and instructions based on type
+        const meditations = {
+          mindfulness: {
+            title: "মাইন্ডফুলনেস মেডিটেশন",
+            instructions: `
+                        <p class="mb-3">• আরামদায়ক অবস্থানে বসুন</p>
+                        <p class="mb-3">• চোখ বন্ধ করুন বা নরম দৃষ্টিতে তাকান</p>
+                        <p class="mb-3">• আপনার শ্বাসের উপর মনোযোগ দিন</p>
+                        <p class="mb-3">• মন যখন ভটকে যায়, আস্তে আস্তে শ্বাসে ফিরে আসুন</p>
+                    `,
+          },
+          bodyscan: {
+            title: "বডি স্ক্যান মেডিটেশন",
+            instructions: `
+                        <p class="mb-3">• শুয়ে থাকুন বা আরামদায়কভাবে বসুন</p>
+                        <p class="mb-3">• পায়ের আঙুল থেকে শুরু করুন</p>
+                        <p class="mb-3">• শরীরের প্রতিটি অংশে মনোযোগ দিন</p>
+                        <p class="mb-3">• টেনশন অনুভব করলে সেই অংশ শিথিল করুন</p>
+                    `,
+          },
+          "loving-kindness": {
+            title: "প্রেমময়তা মেডিটেশন",
+            instructions: `
+                        <p class="mb-3">• "আমি সুখী হই" ভেবে শুরু করুন</p>
+                        <p class="mb-3">• "আমি নিরাপদ থাকি" চিন্তা করুন</p>
+                        <p class="mb-3">• প্রিয়জনদের জন্য এই কামনা করুন</p>
+                        <p class="mb-3">• সবার জন্য প্রেম ও করুণা পাঠান</p>
+                    `,
+          },
+        };
+
+        title.textContent = meditations[type].title;
+        instructions.innerHTML = meditations[type].instructions;
+        timeDisplay.textContent = `${duration.toString().padStart(2, "0")}:00`;
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+
+        startMeditationTimer();
+      }
+
+      function startMeditationTimer() {
+        meditationStartTime = Date.now();
+        isPaused = false;
+
+        updateMeditationProgress();
+
+        meditationTimer = setInterval(() => {
+          if (!isPaused) {
+            updateMeditationProgress();
+          }
+        }, 1000);
+      }
+
+      function updateMeditationProgress() {
+        const elapsed = Math.floor((Date.now() - meditationStartTime) / 1000);
+        const remaining = Math.max(0, meditationDuration - elapsed);
+
+        if (remaining === 0) {
+          completeMeditation();
+          return;
+        }
+
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+
+        document.getElementById("meditation-time").textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+        // Update progress circle
+        const progress = (elapsed / meditationDuration) * 283;
+        document.getElementById("progress-circle").style.strokeDashoffset =
+          283 - progress;
+      }
+
+      function completeMeditation() {
+        clearInterval(meditationTimer);
+        document.getElementById("meditation-time").textContent = "সম্পন্ন!";
+
+        // Play completion sound (if available)
+        setTimeout(() => {
+          closeMeditationModal();
+        }, 2000);
+      }
+
+      function closeMeditationModal() {
+        const modal = document.getElementById("meditation-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        clearInterval(meditationTimer);
+      }
+
+      // Modal controls
+      document
+        .getElementById("pause-meditation")
+        .addEventListener("click", function () {
+          isPaused = !isPaused;
+          this.textContent = isPaused ? "চালু করুন" : "বিরতি";
+        });
+
+      document
+        .getElementById("stop-meditation")
+        .addEventListener("click", function () {
+          closeMeditationModal();
+        });
+
+      // 5-4-3-2-1 Technique
+      function start54321() {
+        const steps = [
+          "৫টি জিনিস খুঁজে বের করুন যা আপনি দেখতে পাচ্ছেন...",
+          "৪টি জিনিস খুঁজুন যা আপনি স্পর্শ করতে পারেন...",
+          "ৣটি শব্দ সনাক্ত করুন যা আপনি শুনতে পাচ্ছেন...",
+          "২টি গন্ধ চিহ্নিত করুন...",
+          "১টি স্বাদ অনুভব করুন যা আপনার মুখে আছে...",
+          "চমৎকার! আপনি ৫-৪-৩-২-১ কৌশল সম্পন্ন করেছেন।",
+        ];
+
+        let currentStep = 0;
+
+        function showNextStep() {
+          if (currentStep < steps.length) {
+            alert(steps[currentStep]);
+            currentStep++;
+            if (currentStep < steps.length - 1) {
+              setTimeout(showNextStep, 15000); // 15 seconds for each step
+            } else {
+              setTimeout(showNextStep, 3000); // 3 seconds for completion
+            }
+          }
+        }
+
+        showNextStep();
+      }
+
+      // Progressive Muscle Relaxation
+      function startPMR() {
+        const bodyParts = [
+          "পায়ের আঙুল",
+          "পায়ের পাতা",
+          "পায়ের গোড়ালি",
+          "পায়ের পিছনের মাংসপেশী",
+          "উরুর মাংসপেশী",
+          "নিতম্ব",
+          "পেটের মাংসপেশী",
+          "হাতের আঙুল",
+          "হাতের কব্জি",
+          "বাহু",
+          "কাঁধ",
+          "ঘাড়",
+          "মুখের মাংসপেশী",
+        ];
+
+        let currentPart = 0;
+
+        function relaxNextPart() {
+          if (currentPart < bodyParts.length) {
+            alert(
+              `${bodyParts[currentPart]} এ ৫ সেকেন্ড চাপ দিন, তারপর শিথিল করুন।`
+            );
+            currentPart++;
+            setTimeout(relaxNextPart, 8000); // 8 seconds per body part
+          } else {
+            alert(
+              "চমৎকার! সম্পূর্ণ শরীর এখন শিথিল। গভীর শ্বাস নিন এবং এই অনুভূতি উপভোগ করুন।"
+            );
+          }
+        }
+
+        alert(
+          "প্রগ্রেসিভ মাসল রিল্যাক্সেশন শুরু হচ্ছে। আরামদায়কভাবে শুয়ে বা বসে থাকুন।"
+        );
+        setTimeout(relaxNextPart, 3000);
+      }
+
+      // Daily Practices
+      function startDailyPractice(time) {
+        const practices = {
+          morning: {
+            title: "সকালের অনুশীলন",
+            steps: [
+              "গভীর শ্বাস নিয়ে দিন শুরু করুন",
+              "আজকের জন্য ৩টি কৃতজ্ঞতার বিষয় চিন্তা করুন",
+              "দিনের জন্য একটি ইতিবাচক অভিপ্রায় নির্ধারণ করুন",
+              "আজকের প্রধান লক্ষ্যগুলি মনে করুন",
+            ],
+          },
+          midday: {
+            title: "দুপুরের বিরতি",
+            steps: [
+              "কাজ থামিয়ে ৫টি গভীর শ্বাস নিন",
+              "ঘাড় ও কাঁধের স্ট্রেচিং করুন",
+              "এক গ্লাস পানি পান করুন",
+              "বিকেলের জন্য শক্তি সংগ্রহ করুন",
+            ],
+          },
+          evening: {
+            title: "সন্ধ্যার শান্তি",
+            steps: [
+              "আজকের ভালো মুহূর্তগুলি স্মরণ করুন",
+              "যেকোনো টেনশন শরীর থেকে বের করে দিন",
+              "আগামীকালের জন্য একটি ইতিবাচক চিন্তা রাখুন",
+              "কৃতজ্ঞতার সাথে দিন শেষ করুন",
+            ],
+          },
+        };
+
+        const practice = practices[time];
+        let currentStep = 0;
+
+        function showNextStep() {
+          if (currentStep < practice.steps.length) {
+            alert(
+              `${practice.title}\nধাপ ${currentStep + 1}: ${
+                practice.steps[currentStep]
+              }`
+            );
+            currentStep++;
+            if (currentStep < practice.steps.length) {
+              setTimeout(showNextStep, 10000); // 10 seconds per step
+            } else {
+              setTimeout(() => {
+                alert(`${practice.title} সম্পন্ন! আপনি দুর্দান্ত কাজ করেছেন।`);
+              }, 3000);
+            }
+          }
+        }
+
+        showNextStep();
+      }
+
+      // Mobile menu functionality
+      document
+        .getElementById("mobile-menu-btn")
+        .addEventListener("click", function () {
+          // Add mobile menu functionality here if needed
+        });
+    </script>
+  </body>
+</html>
