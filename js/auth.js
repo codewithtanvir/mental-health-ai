@@ -1,26 +1,93 @@
 // Authentication Manager for Mental Health AI
-// Handles all Supabase authentication operations
+// Handles all Supabase authentication operations with robust error handling
 
 class AuthManager {
     constructor() {
         this.supabase = null;
         this.currentUser = null;
-        this.initSupabase();
-        this.setupAuthStateListener();
+        this.retryCount = 0;
+        this.maxRetries = 3;
+        this.isInitialized = false;
+        
+        this.initializeWithRetry();
     }
 
-    // Initialize Supabase client
-    initSupabase() {
-        // Use actual Supabase credentials
-        const SUPABASE_URL = 'https://brecotrpmeiwktcffdws.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI';
+    // Initialize with retry mechanism
+    async initializeWithRetry() {
+        while (this.retryCount < this.maxRetries && !this.isInitialized) {
+            try {
+                await this.initSupabase();
+                this.setupAuthStateListener();
+                this.isInitialized = true;
+                console.log('✅ AuthManager initialized successfully');
+                break;
+            } catch (error) {
+                this.retryCount++;
+                console.error(`❌ AuthManager initialization attempt ${this.retryCount} failed:`, error);
+                
+                if (this.retryCount < this.maxRetries) {
+                    console.log(`⏳ Retrying in ${this.retryCount * 1000}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, this.retryCount * 1000));
+                } else {
+                    console.error('💥 AuthManager initialization failed after all retries');
+                    this.showError('সিস্টেম ইনিশিয়ালাইজেশন ব্যর্থ। পেজ রিফ্রেশ করুন।');
+                }
+            }
+        }
+    }
+
+    // Initialize Supabase client with validation
+    async initSupabase() {
+        // Multiple fallback sources for configuration
+        let config = null;
         
         try {
-            this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase client initialized successfully');
+            // Try to load from config manager first
+            if (window.configManager) {
+                await window.configManager.initialize();
+                config = window.configManager.getSupabaseConfig();
+                console.log('📝 Config loaded from ConfigManager');
+            }
         } catch (error) {
-            console.error('Failed to initialize Supabase client:', error);
+            console.warn('⚠️ ConfigManager failed, using fallback');
         }
+
+        // Fallback configuration
+        if (!config || !config.url || !config.anonKey) {
+            config = {
+                url: 'https://brecotrpmeiwktcffdws.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZWNvdHJwbWVpd2t0Y2ZmZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NzM1MzcsImV4cCI6MjA3MDQ0OTUzN30.eixsq-rJ5JGDihhA1DVKPaXnycFnNRoUvER0HMnlnqI'
+            };
+            console.log('📝 Using fallback configuration');
+        }
+
+        // Validate configuration
+        if (!config.url || !config.anonKey) {
+            throw new Error('Invalid Supabase configuration');
+        }
+
+        // Wait for Supabase to be available
+        let supabaseLoadAttempts = 0;
+        while (!window.supabase && supabaseLoadAttempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            supabaseLoadAttempts++;
+        }
+
+        if (!window.supabase) {
+            throw new Error('Supabase library not loaded');
+        }
+
+        // Initialize client
+        this.supabase = window.supabase.createClient(config.url, config.anonKey);
+        
+        // Test connection
+        const { error: testError } = await this.supabase.auth.getSession();
+        if (testError && testError.message.includes('Invalid JWT')) {
+            console.warn('⚠️ Invalid JWT in session, clearing...');
+            await this.supabase.auth.signOut();
+        }
+        
+        console.log('🔗 Supabase client initialized and tested');
     }
 
     // Get the appropriate base URL for redirects
@@ -257,45 +324,127 @@ class AuthManager {
     async handleLogin(event) {
         event.preventDefault();
         
-        if (!this.supabase) {
-            this.showError('Authentication service is not available. Please try again later.');
-            return;
+        console.log('🔐 Starting login process...');
+        
+        // Ensure auth manager is initialized
+        if (!this.isInitialized || !this.supabase) {
+            console.log('⏳ Auth manager not ready, attempting to initialize...');
+            await this.initializeWithRetry();
+            
+            if (!this.isInitialized || !this.supabase) {
+                this.showError('লগইন সিস্টেম প্রস্তুত নয়। পেজ রিফ্রেশ করুন।');
+                return;
+            }
         }
 
         const formData = new FormData(event.target);
-        const email = formData.get('email');
+        const email = formData.get('email')?.trim().toLowerCase();
         const password = formData.get('password');
         const rememberMe = formData.get('rememberMe');
 
+        // Enhanced validation
         if (!email || !password) {
             this.showError('ইমেইল এবং পাসওয়ার্ড প্রয়োজন।');
+            return;
+        }
+
+        if (!this.isValidEmail(email)) {
+            this.showError('সঠিক ইমেইল ঠিকানা প্রদান করুন।');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showError('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
             return;
         }
 
         this.setLoading('login', true);
 
         try {
-            const { data, error } = await this.supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            console.log('🚀 Attempting login for:', email);
 
-            if (error) {
-                throw error;
+            // Enhanced login with retry mechanism
+            let loginAttempt = 0;
+            let loginSuccess = false;
+            let lastError = null;
+
+            while (loginAttempt < 3 && !loginSuccess) {
+                try {
+                    const { data, error } = await this.supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    loginSuccess = true;
+                    console.log('✅ Login successful');
+
+                    // Handle remember me
+                    if (rememberMe) {
+                        localStorage.setItem('remember_me', 'true');
+                        localStorage.setItem('remember_email', email);
+                    } else {
+                        localStorage.removeItem('remember_me');
+                        localStorage.removeItem('remember_email');
+                    }
+
+                    this.showSuccess('সফলভাবে লগইন হয়েছে!');
+                    
+                    // User will be redirected by the auth state listener
+                    // Add small delay to ensure state change is processed
+                    setTimeout(() => {
+                        if (window.location.pathname.includes('/auth/login')) {
+                            // Fallback redirect if auth state listener doesn't work
+                            console.log('🔄 Fallback redirect triggered');
+                            window.location.href = '../chat.html';
+                        }
+                    }, 2000);
+
+                } catch (attemptError) {
+                    loginAttempt++;
+                    lastError = attemptError;
+                    
+                    if (loginAttempt < 3) {
+                        console.log(`⚠️ Login attempt ${loginAttempt} failed, retrying...`);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
             }
 
-            // Handle remember me
-            if (rememberMe) {
-                localStorage.setItem('remember_me', 'true');
+            if (!loginSuccess) {
+                throw lastError;
             }
-
-            this.showSuccess('সফলভাবে লগইন হয়েছে!');
-            
-            // User will be redirected by the auth state listener
 
         } catch (error) {
-            console.error('Login error:', error);
-            this.showError(this.getErrorMessage(error));
+            console.error('❌ Login error:', error);
+            
+            // Enhanced error handling with specific messages
+            let errorMessage = 'লগইন ব্যর্থ হয়েছে।';
+            
+            if (error.message.includes('Invalid login credentials')) {
+                errorMessage = 'ভুল ইমেইল বা পাসওয়ার্ড। আবার চেষ্টা করুন।';
+            } else if (error.message.includes('Email not confirmed')) {
+                errorMessage = 'আপনার ইমেইল যাচাই করুন। ইমেইলে পাঠানো লিংকে ক্লিক করুন।';
+            } else if (error.message.includes('Too many requests')) {
+                errorMessage = 'অনেক চেষ্টা হয়েছে। ৫ মিনিট পর আবার চেষ্টা করুন।';
+            } else if (error.message.includes('Network')) {
+                errorMessage = 'নেটওয়ার্ক সমস্যা। ইন্টারনেট সংযোগ চেক করুন।';
+            } else {
+                errorMessage = this.getErrorMessage(error);
+            }
+            
+            this.showError(errorMessage);
+            
+            // Clear password field on error
+            const passwordField = document.querySelector('input[name="password"]');
+            if (passwordField) {
+                passwordField.value = '';
+                passwordField.focus();
+            }
+            
         } finally {
             this.setLoading('login', false);
         }
@@ -656,31 +805,66 @@ class AuthManager {
     getErrorMessage(error) {
         const errorMessages = {
             'Invalid login credentials': 'ভুল ইমেইল বা পাসওয়ার্ড।',
-            'Email not confirmed': 'আপনার ইমেইল নিশ্চিত করুন।',
-            'User already registered': 'এই ইমেইল ইতিমধ্যে নিবন্ধিত।',
+            'Email not confirmed': 'আপনার ইমেইল নিশ্চিত করুন। ইমেইলে পাঠানো লিংকে ক্লিক করুন।',
+            'User already registered': 'এই ইমেইল ইতিমধ্যে নিবন্ধিত। লগইন করার চেষ্টা করুন।',
             'Password should be at least 6 characters': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।',
             'Invalid email': 'সঠিক ইমেইল ঠিকানা দিন।',
             'Network error': 'ইন্টারনেট সংযোগ চেক করুন।',
             'Signup is disabled': 'নতুন নিবন্ধন বর্তমানে বন্ধ আছে।',
-            'Email rate limit exceeded': 'অনেক চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',
-            'Invalid email format': 'সঠিক ইমেইল ঠিকানা দিন।'
+            'Email rate limit exceeded': 'অনেক চেষ্টা হয়েছে। ৫ মিনিট পর আবার চেষ্টা করুন।',
+            'Invalid email format': 'সঠিক ইমেইল ঠিকানা দিন।',
+            'Too many requests': 'অনেক চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।',
+            'timeout': 'সংযোগে বিলম্ব হচ্ছে। আবার চেষ্টা করুন।',
+            'offline': 'ইন্টারনেট সংযোগ নেই। সংযোগ চেক করুন।'
         };
         
         // Check for specific error patterns
         const message = error.message || '';
+        
+        // Network related errors
+        if (message.includes('fetch') || message.includes('network') || message.includes('NetworkError')) {
+            return 'ইন্টারনেট সংযোগে সমস্যা। সংযোগ চেক করুন।';
+        }
+        
+        // Timeout errors
+        if (message.includes('timeout') || message.includes('AbortError')) {
+            return 'সংযোগে বিলম্ব হচ্ছে। আবার চেষ্টা করুন।';
+        }
+        
+        // Rate limiting
+        if (message.includes('rate limit') || message.includes('too many requests')) {
+            return 'অনেক চেষ্টা হয়েছে। ৫ মিনিট পর আবার চেষ্টা করুন।';
+        }
+        
+        // Authentication errors
         if (message.includes('already registered') || message.includes('already been registered')) {
             return 'এই ইমেইল ইতিমধ্যে নিবন্ধিত। লগইন করার চেষ্টা করুন।';
         }
-        if (message.includes('Invalid email')) {
-            return 'সঠিক ইমেইল ঠিকানা দিন।';
-        }
-        if (message.includes('Password')) {
-            return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
-        }
-        if (message.includes('rate limit')) {
-            return 'অনেক চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        
+        if (message.includes('Invalid login credentials') || message.includes('invalid credentials')) {
+            return 'ভুল ইমেইল বা পাসওয়ার্ড। আবার চেষ্টা করুন।';
         }
         
+        if (message.includes('Email not confirmed') || message.includes('not confirmed')) {
+            return 'আপনার ইমেইল যাচাই করুন। ইমেইলে পাঠানো লিংকে ক্লিক করুন।';
+        }
+        
+        // Email format errors
+        if (message.includes('Invalid email') || message.includes('invalid email format')) {
+            return 'সঠিক ইমেইল ঠিকানা দিন।';
+        }
+        
+        // Password errors
+        if (message.includes('Password') && message.includes('6')) {
+            return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+        }
+        
+        // Database/Server errors
+        if (message.includes('500') || message.includes('server error')) {
+            return 'সার্ভারে সমস্যা। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        }
+        
+        // Fallback to mapped message or generic error
         return errorMessages[message] || message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
     }
 }
