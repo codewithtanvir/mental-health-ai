@@ -36,13 +36,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Check if user is authenticated and is admin
 async function checkAuth() {
     try {
+        console.log('🔐 Admin Dashboard: Starting auth check...');
+        
         const { data: { user } } = await supabase.auth.getUser();
+        console.log('👤 Retrieved user:', user?.id, user?.email);
         
         if (!user) {
+            console.log('❌ No user found, redirecting to login');
             window.location.href = '../auth/login.html?redirect=admin';
             return;
         }
 
+        console.log('🔍 Checking admin role for user:', user.id);
+        
         // Check if user is admin
         const { data: profile, error } = await supabase
             .from('user_profiles')
@@ -50,12 +56,64 @@ async function checkAuth() {
             .eq('id', user.id)
             .single();
 
-        if (error || !profile || profile.role !== 'admin') {
+        console.log('📊 Profile query result:', { profile, error });
+
+        if (error) {
+            console.error('❌ Database error checking profile:', error);
+            // Try to create profile if it doesn't exist
+            if (error.code === 'PGRST116') { // No rows returned
+                console.log('🔧 Profile not found, attempting to create...');
+                
+                const { data: newProfile, error: createError } = await supabase
+                    .from('user_profiles')
+                    .insert({
+                        id: user.id,
+                        email: user.email,
+                        full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                        role: user.email === 'rahmantanvirmuhammad@gmail.com' ? 'admin' : 'user'
+                    })
+                    .select()
+                    .single();
+                
+                if (createError) {
+                    console.error('❌ Failed to create profile:', createError);
+                    alert('প্রোফাইল তৈরি করতে সমস্যা। অ্যাডমিনের সাথে যোগাযোগ করুন।');
+                    window.location.href = '../index.html';
+                    return;
+                } else {
+                    console.log('✅ Profile created:', newProfile);
+                    if (newProfile.role !== 'admin') {
+                        alert('আপনার অ্যাডমিন অ্যাক্সেস নেই।');
+                        window.location.href = '../index.html';
+                        return;
+                    }
+                    // Use the newly created profile
+                    profile = newProfile;
+                }
+            } else {
+                alert('ডাটাবেস এরর। পুনরায় চেষ্টা করুন।');
+                window.location.href = '../index.html';
+                return;
+            }
+        }
+
+        if (!profile) {
+            console.log('❌ No profile found after checks');
+            alert('ব্যবহারকারীর প্রোফাইল পাওয়া যায়নি।');
+            window.location.href = '../index.html';
+            return;
+        }
+
+        console.log('👑 User role check:', profile.role);
+        
+        if (profile.role !== 'admin') {
+            console.log('❌ User is not admin, role:', profile.role);
             alert('আপনার অ্যাডমিন অ্যাক্সেস নেই।');
             window.location.href = '../index.html';
             return;
         }
 
+        console.log('✅ Admin access confirmed!');
         currentUser = user;
         
         // Update admin info in header
@@ -65,7 +123,8 @@ async function checkAuth() {
         document.getElementById('adminInitials').textContent = initials;
 
     } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('💥 Auth check critical error:', error);
+        alert('অথেনটিকেশন এরর: ' + error.message);
         window.location.href = '../auth/login.html?redirect=admin';
     }
 }
