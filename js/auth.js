@@ -70,18 +70,24 @@ class AuthManager {
         const urlParams = new URLSearchParams(window.location.search);
         const redirect = urlParams.get('redirect');
         
+        console.log('Admin check result:', isAdmin, 'for user:', user.id);
+        
         let returnUrl;
         if (redirect === 'admin' && isAdmin) {
-            returnUrl = '../admin/dashboard.html';
+            returnUrl = '/admin/dashboard.html';
         } else if (isAdmin && !redirect) {
-            returnUrl = '../admin/dashboard.html';
+            returnUrl = '/admin/dashboard.html';
         } else {
-            returnUrl = urlParams.get('returnUrl') || '../chat.html';
+            returnUrl = urlParams.get('returnUrl') || '/chat.html';
         }
+        
+        console.log('Redirecting to:', returnUrl);
         
         // Check if we're on an auth page
         if (window.location.pathname.includes('/auth/')) {
-            window.location.href = returnUrl;
+            // Use absolute path from root
+            const baseUrl = window.location.origin;
+            window.location.href = baseUrl + returnUrl;
         }
     }
 
@@ -91,7 +97,9 @@ class AuthManager {
         
         // If on a protected page, redirect to login
         if (this.isProtectedPage()) {
-            window.location.href = '../auth/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+            const baseUrl = window.location.origin;
+            const currentPath = window.location.pathname;
+            window.location.href = `${baseUrl}/auth/login.html?returnUrl=${encodeURIComponent(currentPath)}`;
         }
     }
 
