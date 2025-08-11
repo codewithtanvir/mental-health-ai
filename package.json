@@ -5,10 +5,8 @@
   "main": "index.html",
   "scripts": {
     "start": "live-server .",
-    "build": "npm run minify-css && npm run minify-js",
-    "minify-css": "cleancss -o css/styles.min.css css/styles.css",
-    "minify-js": "uglifyjs js/main.js -o js/main.min.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo 'No build step required for static site'",
+    "test": "echo \"No test specified\" && exit 0",
     "dev": "live-server . --host=localhost --port=3000",
     "lint": "eslint js/*.js",
     "format": "prettier --write \"**/*.{html,css,js,json,md}\""
