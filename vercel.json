@@ -1,24 +1,19 @@
 {
   "version": 2,
-  "name": "mental-health-ai",
   "builds": [
     {
       "src": "**/*",
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/admin",
-      "dest": "/admin/dashboard.html"
+      "source": "/admin",
+      "destination": "/admin/dashboard.html"
     },
     {
-      "src": "/blog/(.*)",
-      "dest": "/pages/posts/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/blog/(.*)",
+      "destination": "/pages/posts/$1"
     }
   ],
   "headers": [
