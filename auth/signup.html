@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাকাউন্ট তৈরি করুন - মানসিক স্বাস্থ্য এআই</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="মানসিক স্বাস্থ্য এআই প্ল্যাটফর্মে আপনার ব্যক্তিগত অ্যাকাউন্ট তৈরি করুন।">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+    
+    <style>
+        .auth-bg {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+        .form-floating:focus-within label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #0d9488;
+        }
+        .form-floating label {
+            transition: all 0.2s ease;
+            transform-origin: top left;
+        }
+        .form-floating input:not(:placeholder-shown) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="../index.html" class="text-2xl font-bold text-teal-600">মানসিক স্বাস্থ্য এআই</a>
+            <div class="flex items-center space-x-4">
+                <a href="login.html" class="text-gray-600 hover:text-teal-600">লগইন</a>
+                <a href="../index.html" class="text-gray-600 hover:text-teal-600">হোম</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Logo and Header -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+                    <span class="text-3xl">🧠</span>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900">অ্যাকাউন্ট তৈরি করুন</h2>
+                <p class="mt-2 text-gray-600">আপনার ব্যক্তিগত মানসিক স্বাস্থ্য যাত্রা শুরু করুন</p>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="bg-white rounded-lg shadow-xl p-8">
+                <form id="signup-form" class="space-y-6">
+                    <!-- Name Field -->
+                    <div class="form-floating relative">
+                        <input 
+                            type="text" 
+                            id="full-name" 
+                            name="fullName"
+                            placeholder=" "
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                        >
+                        <label for="full-name" class="absolute left-4 top-3 text-gray-500 pointer-events-none">
+                            পূর্ণ নাম
+                        </label>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-floating relative">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            placeholder=" "
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                        >
+                        <label for="email" class="absolute left-4 top-3 text-gray-500 pointer-events-none">
+                            ইমেইল ঠিকানা
+                        </label>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-floating relative">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            placeholder=" "
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                        >
+                        <label for="password" class="absolute left-4 top-3 text-gray-500 pointer-events-none">
+                            পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)
+                        </label>
+                        <button 
+                            type="button" 
+                            id="toggle-password"
+                            class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                        >
+                            👁️
+                        </button>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="form-floating relative">
+                        <input 
+                            type="password" 
+                            id="confirm-password" 
+                            name="confirmPassword"
+                            placeholder=" "
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200"
+                        >
+                        <label for="confirm-password" class="absolute left-4 top-3 text-gray-500 pointer-events-none">
+                            পাসওয়ার্ড নিশ্চিত করুন
+                        </label>
+                    </div>
+
+                    <!-- Age Verification -->
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            id="age-verification" 
+                            name="ageVerification"
+                            required
+                            class="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                        >
+                        <label for="age-verification" class="ml-2 text-sm text-gray-700">
+                            আমি নিশ্চিত করছি যে আমার বয়স ১৮ বছর বা তার বেশি
+                        </label>
+                    </div>
+
+                    <!-- Terms and Privacy -->
+                    <div class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            id="terms-agreement" 
+                            name="termsAgreement"
+                            required
+                            class="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                        >
+                        <label for="terms-agreement" class="ml-2 text-sm text-gray-700">
+                            আমি <a href="../pages/terms.html" class="text-teal-600 hover:underline" target="_blank">ব্যবহারের শর্তাবলী</a> 
+                            এবং <a href="../pages/privacy.html" class="text-teal-600 hover:underline" target="_blank">গোপনীয়তা নীতি</a> 
+                            সম্মত আছি
+                        </label>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        <div class="flex">
+                            <span class="text-red-500">⚠️</span>
+                            <span class="ml-2" id="error-text"></span>
+                        </div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div id="success-message" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                        <div class="flex">
+                            <span class="text-green-500">✅</span>
+                            <span class="ml-2" id="success-text"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        id="signup-btn"
+                        class="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center"
+                    >
+                        <span id="signup-btn-text">অ্যাকাউন্ট তৈরি করুন</span>
+                        <div id="signup-loader" class="hidden ml-2">
+                            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Alternative Login -->
+                <div class="mt-8">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">অথবা</span>
+                        </div>
+                    </div>
+
+                    <!-- Google Sign Up -->
+                    <button 
+                        type="button" 
+                        id="google-signup"
+                        class="mt-4 w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors duration-200"
+                    >
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5 mr-3">
+                        Google দিয়ে সাইন আপ করুন
+                    </button>
+                </div>
+
+                <!-- Login Link -->
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">
+                        ইতিমধ্যে অ্যাকাউন্ট আছে? 
+                        <a href="login.html" class="text-teal-600 hover:text-teal-700 font-semibold">লগইন করুন</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="text-center text-sm text-gray-500 mt-6">
+                <p>
+                    এই প্ল্যাটফর্মটি পেশাদার চিকিৎসা পরামর্শের বিকল্প নয়। 
+                    জরুরি অবস্থায় অবিলম্বে চিকিৎসকের সাহায্য নিন।
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/auth.js"></script>
+    <script>
+        // Initialize signup functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.AuthManager) {
+                window.AuthManager.initSignup();
+            }
+        });
+    </script>
+</body>
+</html>

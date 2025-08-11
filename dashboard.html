@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ড্যাশবোর্ড - মানসিক স্বাস্থ্য এআই</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="আপনার ব্যক্তিগত মানসিক স্বাস্থ্য ড্যাশবোর্ড">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-teal-600">মানসিক স্বাস্থ্য এআই</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="index.html#chatbot" class="text-gray-600 hover:text-teal-600">এআই চ্যাট</a>
+                <a href="pages/blog.html" class="text-gray-600 hover:text-teal-600">ব্লগ</a>
+                <a href="pages/resources.html" class="text-gray-600 hover:text-teal-600">রিসোর্স</a>
+                <a href="dashboard.html" class="text-teal-600 font-semibold">ড্যাশবোর্ড</a>
+            </div>
+
+            <!-- User Menu -->
+            <div class="relative">
+                <button id="user-menu-button" class="flex items-center space-x-2 text-gray-600 hover:text-teal-600">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=0d9488&color=fff" alt="User" class="w-8 h-8 rounded-full">
+                    <span id="user-name">Loading...</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">প্রোফাইল</a>
+                    <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">সেটিংস</a>
+                    <a href="chat-history.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">চ্যাট হিস্টরি</a>
+                    <hr class="my-1">
+                    <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">লগআউট</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">স্বাগতম, <span id="welcome-name">...</span>!</h1>
+            <p class="text-gray-600">আজ আপনার মানসিক স্বাস্থ্যের যাত্রা কেমন চলছে?</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <span class="text-2xl">💬</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">মোট চ্যাট</p>
+                        <p class="text-2xl font-bold text-blue-600" id="total-chats">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <span class="text-2xl">📅</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">সক্রিয় দিন</p>
+                        <p class="text-2xl font-bold text-green-600" id="active-days">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">লক্ষ্য অর্জন</p>
+                        <p class="text-2xl font-bold text-purple-600" id="goals-achieved">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-orange-100 rounded-lg">
+                        <span class="text-2xl">📚</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">পড়া আর্টিকেল</p>
+                        <p class="text-2xl font-bold text-orange-600" id="articles-read">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">দ্রুত কার্যক্রম</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <a href="index.html#chatbot" class="flex items-center p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors">
+                            <span class="text-2xl mr-3">🤖</span>
+                            <div>
+                                <h3 class="font-semibold text-teal-800">AI চ্যাট</h3>
+                                <p class="text-sm text-teal-600">মানসিক সাহায্য পান</p>
+                            </div>
+                        </a>
+
+                        <a href="pages/blog.html" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                            <span class="text-2xl mr-3">📖</span>
+                            <div>
+                                <h3 class="font-semibold text-blue-800">ব্লগ পড়ুন</h3>
+                                <p class="text-sm text-blue-600">নতুন টিপস জানুন</p>
+                            </div>
+                        </a>
+
+                        <a href="mood-tracker.html" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                            <span class="text-2xl mr-3">😊</span>
+                            <div>
+                                <h3 class="font-semibold text-purple-800">মুড ট্র্যাকার</h3>
+                                <p class="text-sm text-purple-600">মেজাজ রেকর্ড করুন</p>
+                            </div>
+                        </a>
+
+                        <a href="pages/resources.html" class="flex items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                            <span class="text-2xl mr-3">🆘</span>
+                            <div>
+                                <h3 class="font-semibold text-red-800">জরুরি সাহায্য</h3>
+                                <p class="text-sm text-red-600">হেল্পলাইন নম্বর</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Chat History -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">সাম্প্রতিক কথোপকথন</h2>
+                        <a href="chat-history.html" class="text-teal-600 hover:text-teal-700 text-sm">সব দেখুন</a>
+                    </div>
+                    <div id="recent-chats" class="space-y-3">
+                        <div class="text-gray-500 text-center py-8">
+                            এখনও কোনো কথোপকথন নেই। <a href="index.html#chatbot" class="text-teal-600 hover:underline">প্রথম চ্যাট শুরু করুন</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Progress -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">শেখার অগ্রগতি</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">মানসিক স্বাস্থ্য মৌলিক বিষয়</span>
+                                <span class="text-sm text-gray-500">৩/৫</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-teal-600 h-2 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">স্ট্রেস ম্যানেজমেন্ট</span>
+                                <span class="text-sm text-gray-500">২/৪</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">মেডিটেশন কৌশল</span>
+                                <span class="text-sm text-gray-500">১/৩</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full" style="width: 33%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Today's Mood -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">আজকের মেজাজ</h2>
+                    <div class="text-center">
+                        <div class="text-6xl mb-4" id="today-mood">🤔</div>
+                        <p class="text-gray-600 mb-4">আজ আপনার মেজাজ কেমন?</p>
+                        <div class="flex justify-center space-x-2 mb-4">
+                            <button class="mood-btn text-2xl p-2 rounded hover:bg-gray-100" data-mood="😢">😢</button>
+                            <button class="mood-btn text-2xl p-2 rounded hover:bg-gray-100" data-mood="😔">😔</button>
+                            <button class="mood-btn text-2xl p-2 rounded hover:bg-gray-100" data-mood="😐">😐</button>
+                            <button class="mood-btn text-2xl p-2 rounded hover:bg-gray-100" data-mood="😊">😊</button>
+                            <button class="mood-btn text-2xl p-2 rounded hover:bg-gray-100" data-mood="😄">😄</button>
+                        </div>
+                        <button id="save-mood" class="btn btn-primary text-sm" disabled>মেজাজ সেভ করুন</button>
+                    </div>
+                </div>
+
+                <!-- Daily Quote -->
+                <div class="bg-gradient-to-r from-teal-500 to-blue-600 rounded-lg shadow p-6 text-white">
+                    <h2 class="text-xl font-bold mb-4">আজকের অনুপ্রেরণা</h2>
+                    <blockquote class="text-lg italic mb-4" id="daily-quote">
+                        "প্রতিটি নতুন দিন একটি নতুন সুযোগ।"
+                    </blockquote>
+                    <p class="text-sm opacity-75" id="quote-author">- অজানা</p>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">আসন্ন অ্যাপয়েন্টমেন্ট</h2>
+                    <div id="appointments" class="space-y-3">
+                        <div class="text-gray-500 text-center py-4">
+                            কোনো অ্যাপয়েন্টমেন্ট নেই
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary w-full mt-4">নতুন অ্যাপয়েন্টমেন্ট</button>
+                </div>
+
+                <!-- Mental Health Tips -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4">দৈনিক টিপস</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-green-500 text-xl">💡</span>
+                            <p class="text-sm">দিনে ১০ মিনিট গভীর শ্বাস নিন</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-blue-500 text-xl">🚶‍♂️</span>
+                            <p class="text-sm">প্রতিদিন অন্তত ৩০ মিনিট হাঁটুন</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-purple-500 text-xl">😴</span>
+                            <p class="text-sm">রাতে ৭-৮ ঘন্টা ঘুমান</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-orange-500 text-xl">🤝</span>
+                            <p class="text-sm">পরিবার ও বন্ধুদের সাথে যোগাযোগ রাখুন</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Protect this page - redirect to login if not authenticated
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.AuthManager || !window.AuthManager.isAuthenticated()) {
+                window.location.href = 'auth/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            
+            // Initialize dashboard
+            if (window.DashboardManager) {
+                window.DashboardManager.init();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "Mental Health AI",
+    "version": "1.0.0",
+    "description": "AI-powered mental health support platform for Bangladeshi users",
+    "language": "bn",
+    "defaultTimezone": "Asia/Dhaka"
+  },
+  "api": {
+    "gemini": {
+      "model": "gemini-2.5-flash-preview-05-20",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/",
+      "maxTokens": 1024,
+      "temperature": 0.8,
+      "topP": 0.9,
+      "topK": 40
+    },
+    "supabase": {
+      "url": "your_supabase_project_url_here",
+      "anonKey": "your_supabase_anon_key_here",
+      "authRedirectUrl": "/auth/callback.html"
+    }
+  },
+  "features": {
+    "authentication": {
+      "enabled": true,
+      "providers": ["email", "google"],
+      "requireEmailVerification": true,
+      "minPasswordLength": 6,
+      "sessionTimeout": 86400
+    },
+    "chat": {
+      "enabled": true,
+      "maxMessageLength": 1000,
+      "maxHistoryLength": 20,
+      "autoScroll": true,
+      "typingIndicator": true,
+      "saveHistory": true
+    },
+    "blog": {
+      "enabled": true,
+      "postsPerPage": 6
+    },
+    "resources": {
+      "enabled": true,
+      "emergency": {
+        "nasib": {
+          "name": "নাসিব (NASIB)",
+          "description": "ন্যাশনাল ইনস্টিটিউট অফ মেন্টাল হেলথ (NIMH) এর একটি টেলি-কাউন্সেলিং সেবা",
+          "phone": "09611677777",
+          "website": "https://nimh.gov.bd"
+        },
+        "kanPeteRoi": {
+          "name": "কান পেতে রই",
+          "description": "একটি সুইসাইড প্রিভেনশন ইমোশনাল সাপোর্ট হেল্পলাইন",
+          "phone": "09612677777",
+          "website": "https://kanpeteroi.org"
+        },
+        "monerBondhu": {
+          "name": "মনের বন্ধু",
+          "description": "অনলাইন এবং অফলাইনে মানসিক স্বাস্থ্য সেবা প্রদানকারী একটি বিশ্বস্ত প্রতিষ্ঠান",
+          "phone": "01779554391",
+          "website": "https://monerbondhu.com"
+        }
+      }
+    }
+  },
+  "ui": {
+    "theme": {
+      "primaryColor": "#0d9488",
+      "secondaryColor": "#f0fdfa",
+      "accentColor": "#14b8a6",
+      "textPrimary": "#1f2937",
+      "textSecondary": "#6b7280"
+    },
+    "fonts": {
+      "primary": "Hind Siliguri",
+      "fallback": "sans-serif"
+    },
+    "animations": {
+      "duration": "300ms",
+      "easing": "ease"
+    }
+  },
+  "seo": {
+    "title": "মানসিক স্বাস্থ্য এআই - আপনার মানসিক শান্তির সঙ্গী",
+    "description": "বাংলাদেশের জন্য AI-চালিত মানসিক স্বাস্থ্য সহায়তা প্ল্যাটফর্ম। নিরাপদ এবং ব্যক্তিগত পরিবেশে আপনার মনের কথা বলুন।",
+    "keywords": "mental health, AI, Bangladesh, মানসিক স্বাস্থ্য, এআই, বাংলাদেশ",
+    "author": "Mental Health AI Team",
+    "ogImage": "/images/og-image.jpg"
+  },
+  "analytics": {
+    "enabled": false,
+    "googleAnalytics": "",
+    "facebookPixel": ""
+  },
+  "security": {
+    "rateLimiting": {
+      "enabled": true,
+      "maxRequests": 50,
+      "windowMs": 900000
+    },
+    "contentSecurity": {
+      "enabled": true
+    }
+  },
+  "social": {
+    "facebook": "",
+    "twitter": "",
+    "instagram": "",
+    "linkedin": ""
+  },
+  "legal": {
+    "privacyPolicyUrl": "/privacy-policy.html",
+    "termsOfServiceUrl": "/terms-of-service.html",
+    "disclaimerText": "এই ওয়েবসাইটটি মানসিক স্বাস্থ্য সম্পর্কে সচেতনতা এবং প্রাথমিক সহায়তার জন্য তৈরি। এটি কোনোভাবেই পেশাদার চিকিৎসা পরামর্শ, রোগ নির্ণয় বা চিকিৎসার বিকল্প নয়।"
+  }
+}

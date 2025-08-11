@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Callback - মানসিক স্বাস্থ্য এআই</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <div class="mx-auto h-20 w-20 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">প্রবেশ করানো হচ্ছে...</h2>
+        <p class="text-gray-600 mb-4">অনুগ্রহ করে অপেক্ষা করুন</p>
+        
+        <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg max-w-md mx-auto">
+            <div class="flex items-center">
+                <span class="text-red-500 mr-2">⚠️</span>
+                <span id="error-text"></span>
+            </div>
+            <div class="mt-4">
+                <a href="login.html" class="text-red-600 hover:text-red-800 font-medium">লগইন পেজে ফিরে যান</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                if (!window.AuthManager || !window.AuthManager.supabase) {
+                    throw new Error('Authentication service not available');
+                }
+
+                // Handle the OAuth callback
+                const { data, error } = await window.AuthManager.supabase.auth.getSession();
+                
+                if (error) {
+                    throw error;
+                }
+
+                if (data.session) {
+                    // Success - redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '../dashboard.html';
+                    }, 1000);
+                } else {
+                    // No session found, might be an error or user cancelled
+                    throw new Error('No authentication session found');
+                }
+                
+            } catch (error) {
+                console.error('Auth callback error:', error);
+                
+                // Show error message
+                const errorDiv = document.getElementById('error-message');
+                const errorText = document.getElementById('error-text');
+                
+                if (errorDiv && errorText) {
+                    errorText.textContent = 'লগইনে সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+                    errorDiv.classList.remove('hidden');
+                }
+                
+                // Hide loading
+                document.querySelector('.animate-spin').style.display = 'none';
+                
+                // Auto redirect to login after 5 seconds
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

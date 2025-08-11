@@ -1,0 +1,83 @@
+# Mental Health AI - Gitignore
+
+# CRITICAL: Protect sensitive configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Protect actual API keys and secrets
+config/config.json
+quick-test.html
+test-supabase.html
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build output
+dist/
+build/
+*.min.css
+*.min.js
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# API keys and secrets (backup safety)
+config/secrets.json
+config/api-keys.json
+
+# User uploaded content (if any)
+uploads/
+user-content/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Database files (if local database is used)
+*.db
+*.sqlite
+*.sqlite3
+
+# Package lock files (choose one)
+# package-lock.json
+# yarn.lock
+
+# Backup files
+*.bak
+*.backup
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Local development
+.local/
+local/
